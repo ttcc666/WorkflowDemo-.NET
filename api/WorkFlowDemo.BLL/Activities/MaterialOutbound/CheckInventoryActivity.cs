@@ -19,10 +19,10 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var materialDal = context.GetRequiredService<MaterialDal>();
+            var materialRepository = context.GetRequiredService<IMaterialRepository>();
             var logger = context.GetRequiredService<ILogger<CheckInventoryActivity>>();
             var details = Details.Get(context);
-            
+
             logger.LogInformation("开始检验库存，物料数量: {Count}", details?.Count ?? 0);
 
             try
@@ -37,8 +37,8 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
                 // 检查每个物料的库存
                 foreach (var detail in details)
                 {
-                    var inventory = await materialDal.GetInventoryByMaterialCodeAsync(detail.MaterialCode);
-                    
+                    var inventory = await materialRepository.GetInventoryByMaterialCodeAsync(detail.MaterialCode);
+
                     if (inventory == null || inventory.Qty < detail.Qty)
                     {
                         logger.LogWarning("物料 {MaterialCode} 库存不足，需要: {Required}, 实际: {Actual}",

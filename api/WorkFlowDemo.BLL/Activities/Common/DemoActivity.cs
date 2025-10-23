@@ -18,9 +18,9 @@ namespace WorkFlowDemo.BLL.Activities.Common
         public IActivity? Else { get; set; }
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var userBll = context.GetRequiredService<UserBll>();
+            var userService = context.GetRequiredService<IUserService>();
             var condition = Condition.Get<CreatePostWorkflowDto>(context);
-            var user = await userBll.GetFirstAsync(u => u.Name == condition.Name);
+            var user = await userService.GetFirstAsync(u => u.Name == condition.Name);
             var result = user != null;
 
             var nextActivity = result ? Then : Else;

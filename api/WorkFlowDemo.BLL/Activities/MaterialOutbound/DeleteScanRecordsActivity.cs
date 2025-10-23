@@ -18,16 +18,16 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var scanDal = context.GetRequiredService<MaterialTemporaryScanDal>();
+            var scanRepository = context.GetRequiredService<IMaterialTemporaryScanRepository>();
             var logger = context.GetRequiredService<ILogger<DeleteScanRecordsActivity>>();
             var batchNumber = BatchNumber.Get(context);
-            
+
             logger.LogInformation("开始删除扫描记录，批次号: {BatchNumber}", batchNumber);
 
             try
             {
-                var success = await scanDal.DeleteByBatchNumberAsync(batchNumber);
-                
+                var success = await scanRepository.DeleteByBatchNumberAsync(batchNumber);
+
                 if (!success)
                 {
                     logger.LogError("删除扫描记录失败，批次号: {BatchNumber}", batchNumber);

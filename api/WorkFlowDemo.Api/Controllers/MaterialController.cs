@@ -10,12 +10,12 @@ namespace WorkFlowDemo.Api.Controllers
 {
     public class MaterialController : BaseController
     {
-        private readonly MaterialBll _materialBll;
+        private readonly IMaterialService _materialService;
         private readonly IMapper _mapper;
 
-        public MaterialController(MaterialBll materialBll, IMapper mapper)
+        public MaterialController(IMaterialService materialService, IMapper mapper)
         {
-            _materialBll = materialBll;
+            _materialService = materialService;
             _mapper = mapper;
         }
 
@@ -28,7 +28,7 @@ namespace WorkFlowDemo.Api.Controllers
         public async Task<IActionResult> Scan([FromBody] CreateMaterialDto createMaterialDto)
         {
             var scan = _mapper.Map<MaterialTemporaryScan>(createMaterialDto);
-            var result = await _materialBll.ScanAndSaveAsync(scan);
+            var result = await _materialService.ScanAndSaveAsync(scan);
             if (!result.Item1)
             {
                 return Fail(result.Item2, 400);
@@ -44,7 +44,7 @@ namespace WorkFlowDemo.Api.Controllers
         [HttpPost("CompleteScan")]
         public async Task<IActionResult> CompleteScan([FromBody] MaterialTemporaryScanComplete complete)
         {
-            var result = await _materialBll.CompleteScanAsync(complete);
+            var result = await _materialService.CompleteScanAsync(complete);
             if (!result.Item1)
             {
                 return Fail(result.Item2, 400);
@@ -59,7 +59,7 @@ namespace WorkFlowDemo.Api.Controllers
         [HttpGet("GetMaterials")]
         public async Task<IActionResult> GetMaterials()
         {
-            var materials = await _materialBll.GetMaterialsAsync();
+            var materials = await _materialService.GetMaterialsAsync();
             return Success(materials);
         }
 
@@ -72,7 +72,7 @@ namespace WorkFlowDemo.Api.Controllers
         public async Task<IActionResult> AddMaterial([FromBody] AddMaterialDto dto)
         {
             var material = _mapper.Map<Material>(dto);
-            var result = await _materialBll.AddMaterialAsync(material);
+            var result = await _materialService.AddMaterialAsync(material);
             return Success(result);
         }
 
@@ -83,7 +83,7 @@ namespace WorkFlowDemo.Api.Controllers
         [HttpGet("GetInventories")]
         public async Task<IActionResult> GetInventories()
         {
-            var inventories = await _materialBll.GetInventoriesAsync();
+            var inventories = await _materialService.GetInventoriesAsync();
             return Success(inventories);
         }
 
@@ -96,7 +96,7 @@ namespace WorkFlowDemo.Api.Controllers
         public async Task<IActionResult> AddInventory([FromBody] AddInventoryDto dto)
         {
             var inventory = _mapper.Map<MaterialInventory>(dto);
-            var result = await _materialBll.AddInventoryAsync(inventory);
+            var result = await _materialService.AddInventoryAsync(inventory);
             return Success(result);
         }
 
@@ -107,7 +107,7 @@ namespace WorkFlowDemo.Api.Controllers
         [HttpGet("GenerateBatchNumber")]
         public async Task<IActionResult> GenerateBatchNumber()
         {
-            var batchNumber = await _materialBll.GenerateBatchNumberAsync();
+            var batchNumber = await _materialService.GenerateBatchNumberAsync();
             return Success(batchNumber);
         }
 
@@ -120,7 +120,7 @@ namespace WorkFlowDemo.Api.Controllers
         public async Task<IActionResult> ScanItem([FromBody] ScanDto dto)
         {
             var scan = _mapper.Map<MaterialTemporaryScan>(dto);
-            var result = await _materialBll.ScanItemAsync(scan);
+            var result = await _materialService.ScanItemAsync(scan);
             if (!result.Item1)
             {
                 return Fail(result.Item2, 400);

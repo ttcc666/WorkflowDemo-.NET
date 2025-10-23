@@ -4,9 +4,9 @@ using WorkFlowDemo.Models.Entities;
 
 namespace WorkFlowDemo.DAL.Repositories
 {
-    public class MaterialDal : BaseRepository<Material>
+    public class MaterialRepository : BaseRepository<Material>, IMaterialRepository
     {
-        public MaterialDal(ISqlSugarClient db) : base(db)
+        public MaterialRepository(ISqlSugarClient db) : base(db)
         {
         }
 

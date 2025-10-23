@@ -19,18 +19,18 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var materialDal = context.GetRequiredService<MaterialDal>();
+            var materialRepository = context.GetRequiredService<IMaterialRepository>();
             var logger = context.GetRequiredService<ILogger<UpdateInventoryActivity>>();
             var details = Details.Get(context);
-            
+
             logger.LogInformation("开始更新库存，物料数量: {Count}", details?.Count ?? 0);
 
             try
             {
                 foreach (var detail in details ?? new List<MaterialOutboundDetailDto>())
                 {
-                    var success = await materialDal.UpdateInventoryAsync(detail.MaterialCode, detail.Qty);
-                    
+                    var success = await materialRepository.UpdateInventoryAsync(detail.MaterialCode, detail.Qty);
+
                     if (!success)
                     {
                         logger.LogError("更新库存失败，物料: {MaterialCode}", detail.MaterialCode);

@@ -4,9 +4,9 @@ using WorkFlowDemo.Models.Entities;
 
 namespace WorkFlowDemo.DAL.Repositories
 {
-    public class UserDal : BaseRepository<User>
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
-        public UserDal(ISqlSugarClient db) : base(db)
+        public UserRepository(ISqlSugarClient db) : base(db)
         {
         }
     }

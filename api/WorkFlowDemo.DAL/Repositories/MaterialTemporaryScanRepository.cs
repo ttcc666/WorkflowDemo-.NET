@@ -4,9 +4,9 @@ using WorkFlowDemo.Models.Entities;
 
 namespace WorkFlowDemo.DAL.Repositories
 {
-    public class MaterialTemporaryScanDal : BaseRepository<MaterialTemporaryScan>
+    public class MaterialTemporaryScanRepository : BaseRepository<MaterialTemporaryScan>, IMaterialTemporaryScanRepository
     {
-        public MaterialTemporaryScanDal(ISqlSugarClient db) : base(db)
+        public MaterialTemporaryScanRepository(ISqlSugarClient db) : base(db)
         {
         }
 

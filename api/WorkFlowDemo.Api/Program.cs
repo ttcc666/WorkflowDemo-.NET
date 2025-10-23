@@ -14,8 +14,8 @@ builder.Services.AddApiServices();
 // 添加 SqlSugar 配置（用于业务数据访问）
 builder.Services.AddSqlSugar(builder.Configuration);
 
-// 添加业务服务
-builder.Services.AddBusinessServices();
+// 添加业务服务（自动注册）
+builder.Services.AddAutoRegistration();
 
 var app = builder.Build();
 

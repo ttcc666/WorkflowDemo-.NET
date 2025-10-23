@@ -19,10 +19,10 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var materialDal = context.GetRequiredService<MaterialDal>();
+            var materialRepository = context.GetRequiredService<IMaterialRepository>();
             var logger = context.GetRequiredService<ILogger<RollbackInventoryActivity>>();
             var details = Details.Get(context);
-            
+
             logger.LogInformation("开始回滚库存，物料数量: {Count}", details?.Count ?? 0);
 
             try
@@ -36,8 +36,8 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
                 foreach (var detail in details)
                 {
-                    var success = await materialDal.RollbackInventoryAsync(detail.MaterialCode, detail.Qty);
-                    
+                    var success = await materialRepository.RollbackInventoryAsync(detail.MaterialCode, detail.Qty);
+
                     if (!success)
                     {
                         logger.LogError("回滚库存失败，物料: {MaterialCode}", detail.MaterialCode);

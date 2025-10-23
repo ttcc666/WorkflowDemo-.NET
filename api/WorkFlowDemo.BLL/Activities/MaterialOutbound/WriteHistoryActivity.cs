@@ -26,7 +26,7 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var materialDal = context.GetRequiredService<MaterialDal>();
+            var materialRepository = context.GetRequiredService<IMaterialRepository>();
             var logger = context.GetRequiredService<ILogger<WriteHistoryActivity>>();
             var batchNumber = BatchNumber.Get(context);
             var details = Details.Get(context);
@@ -51,7 +51,7 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
                         CreatimeTime = DateTime.Now
                     };
 
-                    await materialDal.InsertHistoryAsync(history);
+                    await materialRepository.InsertHistoryAsync(history);
                     historyIds.Add(history.Id);
                 }
 

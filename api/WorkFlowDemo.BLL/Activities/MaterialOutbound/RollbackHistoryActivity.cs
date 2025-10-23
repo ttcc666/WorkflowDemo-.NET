@@ -18,10 +18,10 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var materialDal = context.GetRequiredService<MaterialDal>();
+            var materialRepository = context.GetRequiredService<IMaterialRepository>();
             var logger = context.GetRequiredService<ILogger<RollbackHistoryActivity>>();
             var historyIds = HistoryIds.Get(context);
-            
+
             logger.LogInformation("开始回滚履历，记录数: {Count}", historyIds?.Count ?? 0);
 
             try
@@ -33,8 +33,8 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
                     return;
                 }
 
-                var success = await materialDal.DeleteHistoryByIdsAsync(historyIds);
-                
+                var success = await materialRepository.DeleteHistoryByIdsAsync(historyIds);
+
                 if (!success)
                 {
                     logger.LogError("回滚履历失败");

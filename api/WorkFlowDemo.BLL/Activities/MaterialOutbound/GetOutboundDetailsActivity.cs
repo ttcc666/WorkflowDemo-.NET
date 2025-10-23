@@ -19,16 +19,16 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
-            var scanDal = context.GetRequiredService<MaterialTemporaryScanDal>();
+            var scanRepository = context.GetRequiredService<IMaterialTemporaryScanRepository>();
             var logger = context.GetRequiredService<ILogger<GetOutboundDetailsActivity>>();
             var batchNumber = BatchNumber.Get(context);
-            
+
             logger.LogInformation("开始获取出库详细信息，批次号: {BatchNumber}", batchNumber);
 
             try
             {
                 // 从临时扫描表获取出库详细
-                var scanRecords = await scanDal.GetByBatchNumberAsync(batchNumber);
+                var scanRecords = await scanRepository.GetByBatchNumberAsync(batchNumber);
 
                 if (scanRecords == null || !scanRecords.Any())
                 {

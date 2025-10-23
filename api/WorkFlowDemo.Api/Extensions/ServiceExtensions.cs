@@ -1,6 +1,4 @@
 using SqlSugar;
-using WorkFlowDemo.BLL.Services;
-using WorkFlowDemo.DAL.Repositories;
 
 namespace WorkFlowDemo.Api.Extensions
 {
@@ -21,18 +19,6 @@ namespace WorkFlowDemo.Api.Extensions
                 };
                 return new SqlSugarClient(config);
             });
-            return services;
-        }
-
-        public static IServiceCollection AddBusinessServices(this IServiceCollection services)
-        {
-            services.AddScoped<UserDal>();
-            services.AddScoped<UserBll>();
-
-            services.AddScoped<MaterialDal>();
-            services.AddScoped<MaterialTemporaryScanDal>();
-            services.AddScoped<MaterialInventoryDal>();
-            services.AddScoped<MaterialBll>();
             return services;
         }
 

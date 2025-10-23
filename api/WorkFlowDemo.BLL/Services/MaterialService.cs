@@ -5,22 +5,22 @@ using WorkFlowDemo.Models.Entities;
 
 namespace WorkFlowDemo.BLL.Services
 {
-    public class MaterialBll : BaseService<Material>
+    public class MaterialService : BaseService<Material>, IMaterialService
     {
-        private readonly MaterialDal _materialDal;
-        private readonly MaterialTemporaryScanDal _materialTemporaryScanDal;
-        private readonly MaterialInventoryDal _materialInventoryDal;
+        private readonly IMaterialRepository _materialRepository;
+        private readonly IMaterialTemporaryScanRepository _materialTemporaryScanRepository;
+        private readonly IMaterialInventoryRepository _materialInventoryRepository;
 
-        public MaterialBll(MaterialDal materialDal, MaterialTemporaryScanDal materialTemporaryScanDal, MaterialInventoryDal materialInventoryDal) : base(materialDal)
+        public MaterialService(IMaterialRepository materialRepository, IMaterialTemporaryScanRepository materialTemporaryScanRepository, IMaterialInventoryRepository materialInventoryRepository) : base(materialRepository)
         {
-            _materialDal = materialDal;
-            _materialTemporaryScanDal = materialTemporaryScanDal;
-            _materialInventoryDal = materialInventoryDal;
+            _materialRepository = materialRepository;
+            _materialTemporaryScanRepository = materialTemporaryScanRepository;
+            _materialInventoryRepository = materialInventoryRepository;
         }
 
         public async Task<ValueTuple<bool, string>> ScanAndSaveAsync(MaterialTemporaryScan scan)
         {
-            var material = await _materialDal.GetFirstAsync(it => it.MaterialCode == scan.MaterialCode);
+            var material = await _materialRepository.GetFirstAsync(it => it.MaterialCode == scan.MaterialCode);
             if (material == null)
             {
                 return (false, "Material code not found.");
@@ -29,14 +29,14 @@ namespace WorkFlowDemo.BLL.Services
             scan.Id = Guid.NewGuid().ToString();
             scan.OperationTime = DateTime.Now;
             scan.BatchNumber = string.IsNullOrEmpty(scan.BatchNumber) ? Guid.NewGuid().ToString().Substring(0, 8).ToUpper() : scan.BatchNumber;
-            await _materialTemporaryScanDal.AddAsync(scan);
+            await _materialTemporaryScanRepository.AddAsync(scan);
 
             return (true, scan.BatchNumber);
         }
 
         public async Task<ValueTuple<bool, string>> CompleteScanAsync(MaterialTemporaryScanComplete complete)
         {
-            var scans = await _materialTemporaryScanDal.GetListAsync(it => it.BatchNumber == complete.BatchNo);
+            var scans = await _materialTemporaryScanRepository.GetListAsync(it => it.BatchNumber == complete.BatchNo);
             if (scans == null || !scans.Any())
             {
                 return (false, "No scans found for the provided batch number.");
@@ -49,35 +49,35 @@ namespace WorkFlowDemo.BLL.Services
 
         public async Task<List<Material>> GetMaterialsAsync()
         {
-            return await _materialDal.GetListAsync();
+            return await _materialRepository.GetListAsync();
         }
 
         public async Task<bool> AddMaterialAsync(Material material)
         {
             material.Id = Guid.NewGuid().ToString();
-            await _materialDal.AddAsync(material);
+            await _materialRepository.AddAsync(material);
             return true;
         }
 
         public async Task<List<MaterialInventory>> GetInventoriesAsync()
         {
-            return await _materialInventoryDal.GetListAsync();
+            return await _materialInventoryRepository.GetListAsync();
         }
 
         public async Task<bool> AddInventoryAsync(MaterialInventory inventory)
         {
-            var existing = await _materialInventoryDal.GetFirstAsync(it => it.MaterialCode == inventory.MaterialCode);
+            var existing = await _materialInventoryRepository.GetFirstAsync(it => it.MaterialCode == inventory.MaterialCode);
             if (existing != null)
             {
                 existing.Qty += inventory.Qty;
                 existing.UpdatedTime = DateTime.Now;
-                return await _materialInventoryDal.UpdateAsync(existing);
+                return await _materialInventoryRepository.UpdateAsync(existing);
             }
-            
+
             inventory.Id = Guid.NewGuid().ToString();
             inventory.CreatedTime = DateTime.Now;
             inventory.UpdatedTime = DateTime.Now;
-            await _materialInventoryDal.AddAsync(inventory);
+            await _materialInventoryRepository.AddAsync(inventory);
             return true;
         }
 
@@ -88,14 +88,14 @@ namespace WorkFlowDemo.BLL.Services
 
         public async Task<ValueTuple<bool, string>> ScanItemAsync(MaterialTemporaryScan scan)
         {
-            var material = await _materialDal.GetFirstAsync(it => it.MaterialCode == scan.MaterialCode);
+            var material = await _materialRepository.GetFirstAsync(it => it.MaterialCode == scan.MaterialCode);
             if (material == null)
             {
                 return (false, "物料代码不存在");
             }
 
             // 检查同一批次中是否已存在相同物料代码的记录
-            var existing = await _materialTemporaryScanDal.GetFirstAsync(it =>
+            var existing = await _materialTemporaryScanRepository.GetFirstAsync(it =>
                 it.BatchNumber == scan.BatchNumber &&
                 it.MaterialCode == scan.MaterialCode);
 
@@ -104,7 +104,7 @@ namespace WorkFlowDemo.BLL.Services
                 // 如果存在，累加数量
                 existing.Qty += scan.Qty;
                 existing.OperationTime = DateTime.Now;
-                await _materialTemporaryScanDal.UpdateAsync(existing);
+                await _materialTemporaryScanRepository.UpdateAsync(existing);
                 return (true, $"扫描成功，已累加数量至 {existing.Qty}");
             }
 
@@ -112,7 +112,7 @@ namespace WorkFlowDemo.BLL.Services
             scan.Id = Guid.NewGuid().ToString();
             scan.OperationTime = DateTime.Now;
             scan.Operator = "System";
-            await _materialTemporaryScanDal.AddAsync(scan);
+            await _materialTemporaryScanRepository.AddAsync(scan);
 
             return (true, "扫描成功");
         }
