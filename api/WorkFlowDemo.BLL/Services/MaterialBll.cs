@@ -94,6 +94,21 @@ namespace WorkFlowDemo.BLL.Services
                 return (false, "物料代码不存在");
             }
 
+            // 检查同一批次中是否已存在相同物料代码的记录
+            var existing = await _materialTemporaryScanDal.GetFirstAsync(it =>
+                it.BatchNumber == scan.BatchNumber &&
+                it.MaterialCode == scan.MaterialCode);
+
+            if (existing != null)
+            {
+                // 如果存在，累加数量
+                existing.Qty += scan.Qty;
+                existing.OperationTime = DateTime.Now;
+                await _materialTemporaryScanDal.UpdateAsync(existing);
+                return (true, $"扫描成功，已累加数量至 {existing.Qty}");
+            }
+
+            // 如果不存在，创建新记录
             scan.Id = Guid.NewGuid().ToString();
             scan.OperationTime = DateTime.Now;
             scan.Operator = "System";

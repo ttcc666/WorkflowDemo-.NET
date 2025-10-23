@@ -3,7 +3,10 @@ using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.BLL.Activities.MaterialOutbound;
+using WorkFlowDemo.Models.Common;
 using WorkFlowDemo.Models.Dtos;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
 {
@@ -21,6 +24,12 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
             var updateResultVar = builder.WithVariable<bool>();
             var deleteResultVar = builder.WithVariable<bool>();
             var resultVar = builder.WithVariable<string>();
+            
+            var jsonOptions = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
 
             builder.Root = new Sequence
             {
@@ -65,8 +74,13 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                                     StepName = new("失败"),
                                     StatusMessage = new("库存不足，流程终止")
                                 },
-                                new SetVariable { Variable = resultVar, Value = new("❌ 库存不足") },
-                                new WriteHttpResponse { Content = new(resultVar) }
+                                new SetVariable { Variable = resultVar, Value = new(JsonSerializer.Serialize(ApiResponse.Fail("库存不足", 400), jsonOptions)) },
+                                new WriteHttpResponse
+                                {
+                                    Content = new(resultVar),
+                                    ContentType = new("application/json")
+                                },
+                                new Break()
                             }
                         }
                     },
@@ -114,8 +128,13 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                                     StepName = new("补偿完成"),
                                     StatusMessage = new("↩️ 履历已回滚")
                                 },
-                                new SetVariable { Variable = resultVar, Value = new("❌ 更新库存失败，已回滚履历") },
-                                new WriteHttpResponse { Content = new(resultVar) }
+                                new SetVariable { Variable = resultVar, Value = new(JsonSerializer.Serialize(ApiResponse.Fail("更新库存失败，已回滚履历", 500), jsonOptions)) },
+                                new WriteHttpResponse
+                                {
+                                    Content = new(resultVar),
+                                    ContentType = new("application/json")
+                                },
+                                new Break()
                             }
                         }
                     },
@@ -158,8 +177,13 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                                     StepName = new("补偿完成"),
                                     StatusMessage = new("↩️ 库存和履历已回滚")
                                 },
-                                new SetVariable { Variable = resultVar, Value = new("❌ 删除扫描记录失败，已回滚所有操作") },
-                                new WriteHttpResponse { Content = new(resultVar) }
+                                new SetVariable { Variable = resultVar, Value = new(JsonSerializer.Serialize(ApiResponse.Fail("删除扫描记录失败，已回滚所有操作", 500), jsonOptions)) },
+                                new WriteHttpResponse
+                                {
+                                    Content = new(resultVar),
+                                    ContentType = new("application/json")
+                                },
+                                new Break()
                             }
                         }
                     },
@@ -171,8 +195,12 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                         StatusMessage = new("✅ 物料出库流程成功完成")
                     },
 
-                    new SetVariable { Variable = resultVar, Value = new("✅ 物料出库成功") },
-                    new WriteHttpResponse { Content = new(resultVar) }
+                    new SetVariable { Variable = resultVar, Value = new(JsonSerializer.Serialize(ApiResponse.Success("物料出库成功"), jsonOptions)) },
+                    new WriteHttpResponse
+                    {
+                        Content = new(resultVar),
+                        ContentType = new("application/json")
+                    }
                 }
             };
         }

@@ -1,5 +1,7 @@
 using Microsoft.OpenApi.Models;
 using System.CommandLine;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace WorkFlowDemo.Api.Extensions
 {
@@ -7,7 +9,12 @@ namespace WorkFlowDemo.Api.Extensions
     {
         public static IServiceCollection AddApiServices(this IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                });
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {

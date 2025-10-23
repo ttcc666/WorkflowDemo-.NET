@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物料管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { max-width: 800px; width: 90%; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        h1 { color: #333; margin-bottom: 40px; text-align: center; font-size: 32px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .menu-item { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px; text-align: center; text-decoration: none; color: white; transition: transform 0.3s, box-shadow 0.3s; }
+        .menu-item:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .menu-item h2 { font-size: 20px; margin-bottom: 10px; }
+        .menu-item p { font-size: 14px; opacity: 0.9; }
+        .footer { margin-top: 40px; text-align: center; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物料管理系统</h1>
+        
+        <div class="menu-grid">
+            <a href="scan.html" class="menu-item">
+                <h2>📦 物料扫描</h2>
+                <p>扫描物料并完成出库</p>
+            </a>
+            
+            <a href="material-query.html" class="menu-item">
+                <h2>📋 物料查询</h2>
+                <p>查看所有物料信息</p>
+            </a>
+            
+            <a href="inventory-query.html" class="menu-item">
+                <h2>📊 库存查询</h2>
+                <p>查看库存数量和状态</p>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>物料管理系统 v1.0</p>
+        </div>
+    </div>
+</body>
+</html>

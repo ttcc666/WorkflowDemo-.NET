@@ -37,6 +37,7 @@ namespace WorkFlowDemo.Api.Extensions
         {
             app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseCors();
             app.UseRouting();
             app.UseAuthentication();

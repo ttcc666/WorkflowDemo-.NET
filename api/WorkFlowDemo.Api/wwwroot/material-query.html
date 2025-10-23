@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物料查询</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 30px; text-align: center; }
+        .toolbar { margin-bottom: 20px; display: flex; gap: 10px; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }
+        .btn-primary { background: #1976d2; color: white; }
+        .btn-primary:hover { background: #1565c0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: bold; color: #555; }
+        tr:hover { background: #f9f9f9; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+        .message { padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; }
+        .modal-header { margin-bottom: 20px; }
+        .modal-header h2 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .modal-footer { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-success { background: #4caf50; color: white; }
+        .btn-success:hover { background: #45a049; }
+        .btn-secondary { background: #757575; color: white; }
+        .btn-secondary:hover { background: #616161; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>物料查询</h1>
+        
+        <div class="toolbar">
+            <button class="btn-primary" onclick="loadMaterials()">刷新</button>
+            <button class="btn-success" onclick="showAddModal()">添加物料</button>
+        </div>
+
+        <div id="message"></div>
+        <div id="loading" class="loading" style="display: none;">加载中...</div>
+        <div id="empty" class="empty" style="display: none;">暂无数据</div>
+
+        <table id="materialTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>物料代码</th>
+                    <th>物料名称</th>
+                </tr>
+            </thead>
+            <tbody id="materialBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 添加物料模态框 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加物料</h2>
+            </div>
+            <div class="form-group">
+                <label>物料代码</label>
+                <input type="text" id="newMaterialCode" placeholder="请输入物料代码">
+            </div>
+            <div class="form-group">
+                <label>物料名称</label>
+                <input type="text" id="newMaterialName" placeholder="请输入物料名称">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-success" onclick="addMaterial()">确定</button>
+                <button class="btn-secondary" onclick="closeAddModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/Material';
+
+        async function loadMaterials() {
+            const loading = document.getElementById('loading');
+            const empty = document.getElementById('empty');
+            const table = document.getElementById('materialTable');
+            const tbody = document.getElementById('materialBody');
+            const messageDiv = document.getElementById('message');
+
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            table.style.display = 'none';
+            messageDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/GetMaterials`);
+                const result = await response.json();
+
+                loading.style.display = 'none';
+
+                if (result.code === 200 && result.data && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    result.data.forEach(material => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${material.materialCode}</td>
+                            <td>${material.name}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    table.style.display = 'table';
+                } else {
+                    empty.style.display = 'block';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                showMessage('加载失败：' + error.message, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+            document.getElementById('newMaterialCode').value = '';
+            document.getElementById('newMaterialName').value = '';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        async function addMaterial() {
+            const materialCode = document.getElementById('newMaterialCode').value.trim();
+            const materialName = document.getElementById('newMaterialName').value.trim();
+
+            if (!materialCode) {
+                showMessage('请输入物料代码', 'error');
+                return;
+            }
+
+            if (!materialName) {
+                showMessage('请输入物料名称', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/AddMaterial`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        materialCode: materialCode,
+                        name: materialName
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    showMessage('添加成功', 'success');
+                    closeAddModal();
+                    loadMaterials();
+                } else {
+                    showMessage('添加失败：' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('添加失败：' + error.message, 'error');
+            }
+        }
+
+        // 页面加载时自动查询
+        window.onload = () => loadMaterials();
+
+        // 点击模态框外部关闭
+        window.onclick = (event) => {
+            const modal = document.getElementById('addModal');
+            if (event.target === modal) {
+                closeAddModal();
+            }
+        };
+    </script>
+</body>
+</html>

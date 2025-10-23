@@ -17,7 +17,7 @@ namespace WorkFlowDemo.Api.Extensions
                 elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWorkflow>();
                 elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWithCompensationWorkflow>();
                 elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWithManualCompensationWorkflow>();
-                
+                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow.MaterialOutWorkflow>();
                 // 配置HTTP
                 elsa.UseHttp(http => http.ConfigureHttpOptions = options =>
                 {
@@ -26,24 +26,24 @@ namespace WorkFlowDemo.Api.Extensions
                 });
                 
                 // 配置工作流定义持久化 - 使用SQLite
-                elsa.UseWorkflowManagement(management =>
-                {
-                    management.UseEntityFrameworkCore(ef =>
-                    {
-                        ef.UseSqlite(configuration.GetConnectionString("Elsa")
-                            ?? "Data Source=elsa.db;Cache=Shared");
-                    });
-                });
+                // elsa.UseWorkflowManagement(management =>
+                // {
+                //     management.UseEntityFrameworkCore(ef =>
+                //     {
+                //         ef.UseSqlite(configuration.GetConnectionString("Elsa")
+                //             ?? "Data Source=elsa.db;Cache=Shared");
+                //     });
+                // });
                 
-                // 配置工作流实例运行时持久化
-                elsa.UseWorkflowRuntime(runtime =>
-                {
-                    runtime.UseEntityFrameworkCore(ef =>
-                    {
-                        ef.UseSqlite(configuration.GetConnectionString("Elsa")
-                            ?? "Data Source=elsa.db;Cache=Shared");
-                    });
-                });
+                // // 配置工作流实例运行时持久化
+                // elsa.UseWorkflowRuntime(runtime =>
+                // {
+                //     runtime.UseEntityFrameworkCore(ef =>
+                //     {
+                //         ef.UseSqlite(configuration.GetConnectionString("Elsa")
+                //             ?? "Data Source=elsa.db;Cache=Shared");
+                //     });
+                // });
             });
 
             return services;
