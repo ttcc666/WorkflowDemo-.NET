@@ -18,6 +18,9 @@ namespace WorkFlowDemo.Api.Mappings
             CreateMap<CreateMaterialDto, Material>();
             CreateMap<UpdateMaterialDto, Material>();
             CreateMap<CreateMaterialDto, MaterialTemporaryScan>();
+            CreateMap<AddMaterialDto, Material>();
+            CreateMap<AddInventoryDto, MaterialInventory>();
+            CreateMap<ScanDto, MaterialTemporaryScan>();
         }
     }
 }

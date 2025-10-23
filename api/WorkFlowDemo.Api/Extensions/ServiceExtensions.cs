@@ -31,6 +31,7 @@ namespace WorkFlowDemo.Api.Extensions
 
             services.AddScoped<MaterialDal>();
             services.AddScoped<MaterialTemporaryScanDal>();
+            services.AddScoped<MaterialInventoryDal>();
             services.AddScoped<MaterialBll>();
             return services;
         }

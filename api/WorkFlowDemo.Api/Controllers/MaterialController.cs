@@ -51,5 +51,81 @@ namespace WorkFlowDemo.Api.Controllers
             }
             return Success(result.Item2);
         }
+
+        /// <summary>
+        /// 查询物料列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetMaterials")]
+        public async Task<IActionResult> GetMaterials()
+        {
+            var materials = await _materialBll.GetMaterialsAsync();
+            return Success(materials);
+        }
+
+        /// <summary>
+        /// 添加物料
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("AddMaterial")]
+        public async Task<IActionResult> AddMaterial([FromBody] AddMaterialDto dto)
+        {
+            var material = _mapper.Map<Material>(dto);
+            var result = await _materialBll.AddMaterialAsync(material);
+            return Success(result);
+        }
+
+        /// <summary>
+        /// 查询库存列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetInventories")]
+        public async Task<IActionResult> GetInventories()
+        {
+            var inventories = await _materialBll.GetInventoriesAsync();
+            return Success(inventories);
+        }
+
+        /// <summary>
+        /// 添加库存
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("AddInventory")]
+        public async Task<IActionResult> AddInventory([FromBody] AddInventoryDto dto)
+        {
+            var inventory = _mapper.Map<MaterialInventory>(dto);
+            var result = await _materialBll.AddInventoryAsync(inventory);
+            return Success(result);
+        }
+
+        /// <summary>
+        /// 生成批号
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GenerateBatchNumber")]
+        public async Task<IActionResult> GenerateBatchNumber()
+        {
+            var batchNumber = await _materialBll.GenerateBatchNumberAsync();
+            return Success(batchNumber);
+        }
+
+        /// <summary>
+        /// 写入临时扫描记录
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("ScanItem")]
+        public async Task<IActionResult> ScanItem([FromBody] ScanDto dto)
+        {
+            var scan = _mapper.Map<MaterialTemporaryScan>(dto);
+            var result = await _materialBll.ScanItemAsync(scan);
+            if (!result.Item1)
+            {
+                return Fail(result.Item2, 400);
+            }
+            return Success(result.Item2);
+        }
     }
 }
