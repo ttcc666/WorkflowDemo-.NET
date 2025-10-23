@@ -1,0 +1,41 @@
+### 步骤1: 启动带人工干预的订单处理工作流 (订单金额>1000触发失败)
+POST https://localhost:5001/order-processing-manual
+Content-Type: application/json
+
+{
+  "productId": "PROD-MANUAL",
+  "quantity": 10,
+  "couponCode": "DISCOUNT10",
+  "orderAmount": 1500.00,
+  "userId": "USER-MANUAL"
+}
+
+# 响应会包含工作流ID,例如: "WorkflowInstanceId: abc-123-def"
+# 工作流会暂停并等待人工审批
+
+###
+### 步骤2: 审批通过 - 执行补偿 (需要替换workflowInstanceId)
+POST https://localhost:5001/approve-compensation?workflowInstanceId=YOUR_WORKFLOW_ID_HERE
+Content-Type: application/json
+
+true
+
+###
+### 步骤2备选: 审批拒绝 - 不执行补偿 (需要替换workflowInstanceId)
+POST https://localhost:5001/approve-compensation?workflowInstanceId=YOUR_WORKFLOW_ID_HERE
+Content-Type: application/json
+
+false
+
+###
+### 测试正常流程 (订单金额<=1000不会触发失败)
+POST https://localhost:5001/order-processing-manual
+Content-Type: application/json
+
+{
+  "productId": "PROD-NORMAL",
+  "quantity": 2,
+  "couponCode": "DISCOUNT10",
+  "orderAmount": 500.00,
+  "userId": "USER-NORMAL"
+}
