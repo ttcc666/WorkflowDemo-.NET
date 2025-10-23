@@ -12,11 +12,6 @@ namespace WorkFlowDemo.Api.Extensions
             services.AddElsa(elsa =>
             {
                 // 注册工作流 - 使用完整命名空间
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.Demo.DemoWorkflow>();
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.Demo.PostDemoWorkflow>();
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWorkflow>();
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWithCompensationWorkflow>();
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.OrderProcessing.OrderProcessingWithManualCompensationWorkflow>();
                 elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow.MaterialOutWorkflow>();
                 // 配置HTTP
                 elsa.UseHttp(http => http.ConfigureHttpOptions = options =>
@@ -24,7 +19,7 @@ namespace WorkFlowDemo.Api.Extensions
                     options.BaseUrl = new Uri("https://localhost:5085");
                     options.BasePath = "/workflows";
                 });
-                
+
                 // 配置工作流定义持久化 - 使用SQLite
                 // elsa.UseWorkflowManagement(management =>
                 // {
@@ -34,7 +29,7 @@ namespace WorkFlowDemo.Api.Extensions
                 //             ?? "Data Source=elsa.db;Cache=Shared");
                 //     });
                 // });
-                
+
                 // // 配置工作流实例运行时持久化
                 // elsa.UseWorkflowRuntime(runtime =>
                 // {
