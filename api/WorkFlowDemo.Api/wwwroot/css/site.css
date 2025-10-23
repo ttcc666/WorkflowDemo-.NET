@@ -1,0 +1,274 @@
+/* 全局样式 */
+:root {
+    --primary-color: #667eea;
+    --primary-dark: #5568d3;
+    --secondary-color: #764ba2;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-bg: #f8f9fa;
+    --border-radius: 8px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+/* 容器样式 */
+.main-container {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* 页面标题 */
+.page-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2rem;
+}
+
+/* 卡片样式 */
+.feature-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    height: 100%;
+    color: white;
+    text-decoration: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.feature-card .card-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.feature-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.feature-card .card-text {
+    opacity: 0.95;
+    font-size: 1rem;
+}
+
+/* 表格样式 */
+.table-responsive {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.custom-table {
+    margin-bottom: 0;
+}
+
+.custom-table thead th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 15px;
+}
+
+.custom-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.custom-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* 按钮样式 */
+.btn-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 10px 25px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* Toast 通知样式 - 头部中央 */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+.toast {
+    min-width: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+}
+
+.toast-header {
+    font-weight: 600;
+}
+
+/* 加载和空状态 */
+.loading-state,
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.loading-state i,
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    border: none;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+/* 表单样式 */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* 徽章样式 */
+.badge-custom {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* 扫描项目样式 */
+.scan-item {
+    background: var(--light-bg);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--success-color);
+    transition: all 0.2s ease;
+}
+
+.scan-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+/* 批号信息样式 */
+.batch-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+    margin-bottom: 25px;
+}
+
+.batch-info strong {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+/* 数量状态样式 */
+.qty-low {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.qty-normal {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+/* 页脚样式 */
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 30px;
+}
+
+/* 工具栏样式 */
+.toolbar {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .main-container {
+        padding: 20px;
+    }
+    
+    .toolbar {
+        flex-direction: column;
+    }
+    
+    .toolbar .btn {
+        width: 100%;
+    }
+}
+
+/* 图标样式 */
+.icon-large {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
