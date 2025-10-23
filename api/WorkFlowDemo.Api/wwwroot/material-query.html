@@ -1,169 +1,229 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物料查询</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/site.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container py-4">
-        <div class="main-container">
-            <h1 class="page-title">
-                <i class="bi bi-list-ul text-primary"></i>
-                物料查询
-            </h1>
-            
-            <div class="toolbar">
-                <button class="btn btn-gradient" onclick="loadMaterials()">
-                    <i class="bi bi-arrow-clockwise me-2"></i>刷新
-                </button>
-                <button class="btn btn-success" onclick="showAddModal()">
-                    <i class="bi bi-plus-circle me-2"></i>添加物料
-                </button>
-                <a href="index.html" class="btn btn-secondary">
-                    <i class="bi bi-house me-2"></i>返回首页
-                </a>
-            </div>
-
-            <div id="loading" class="loading-state" style="display: none;">
-                <i class="bi bi-hourglass-split"></i>
-                <p>加载中...</p>
-            </div>
-            
-            <div id="empty" class="empty-state" style="display: none;">
-                <i class="bi bi-inbox"></i>
-                <p>暂无数据</p>
-            </div>
-
-            <div id="tableContainer" style="display: none;">
-                <div class="table-responsive">
-                    <table class="table table-hover custom-table">
-                        <thead>
-                            <tr>
-                                <th>物料代码</th>
-                                <th>物料名称</th>
-                            </tr>
-                        </thead>
-                        <tbody id="materialBody"></tbody>
-                    </table>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>物料查询</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+            rel="stylesheet"
+        />
+        <link href="css/site.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container py-4">
+            <div class="main-container">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <h1 class="page-title mb-0">
+                        <i class="bi bi-list-ul text-primary"></i>
+                        物料查询
+                    </h1>
+                    <a href="index.html" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-2"></i>返回首页
+                    </a>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- 添加物料模态框 -->
-    <div class="modal fade" id="addModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="d-flex gap-2 mb-4">
+                    <button class="btn btn-gradient" onclick="loadMaterials()">
+                        <i class="bi bi-arrow-clockwise me-2"></i>刷新
+                    </button>
+                    <button class="btn btn-success" onclick="showAddModal()">
                         <i class="bi bi-plus-circle me-2"></i>添加物料
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="newMaterialCode" class="form-label">物料代码</label>
-                        <input type="text" class="form-control" id="newMaterialCode" placeholder="请输入物料代码">
-                    </div>
-                    <div class="mb-3">
-                        <label for="newMaterialName" class="form-label">物料名称</label>
-                        <input type="text" class="form-control" id="newMaterialName" placeholder="请输入物料名称">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-success" onclick="addMaterial()">
-                        <i class="bi bi-check-circle me-2"></i>确定
                     </button>
                 </div>
+
+                <div id="loading" class="loading-state" style="display: none">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p>加载中...</p>
+                </div>
+
+                <div id="empty" class="empty-state" style="display: none">
+                    <i class="bi bi-inbox"></i>
+                    <p>暂无数据</p>
+                </div>
+
+                <div id="tableContainer" style="display: none">
+                    <div class="table-responsive">
+                        <table class="table table-hover custom-table">
+                            <thead>
+                                <tr>
+                                    <th>物料代码</th>
+                                    <th>物料名称</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/site.js"></script>
-    <script>
-        const API_BASE = '/Material';
-        let addModalInstance;
+        <!-- 添加物料模态框 -->
+        <div class="modal fade" id="addModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-plus-circle me-2"></i>添加物料
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label
+                                for="newMaterialCode"
+                                class="form-label fw-semibold"
+                                >物料代码</label
+                            >
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="newMaterialCode"
+                                placeholder="请输入物料代码"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label
+                                for="newMaterialName"
+                                class="form-label fw-semibold"
+                                >物料名称</label
+                            >
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="newMaterialName"
+                                placeholder="请输入物料名称"
+                            />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            取消
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            onclick="addMaterial()"
+                        >
+                            <i class="bi bi-check-circle me-2"></i>确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        async function loadMaterials() {
-            const tableContainer = document.getElementById('tableContainer');
-            const tbody = document.getElementById('materialBody');
-            
-            showLoading(true);
-            showEmpty(false);
-            tableContainer.style.display = 'none';
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/site.js"></script>
+        <script>
+            const API_BASE = "/Material";
+            let addModalInstance;
 
-            try {
-                const response = await fetch(`${API_BASE}/GetMaterials`);
-                const result = await response.json();
+            async function loadMaterials() {
+                const tableContainer =
+                    document.getElementById("tableContainer");
+                const tbody = document.getElementById("materialBody");
 
-                showLoading(false);
+                showLoading(true);
+                showEmpty(false);
+                tableContainer.style.display = "none";
 
-                if (result.code === 200 && result.data && result.data.length > 0) {
-                    tbody.innerHTML = result.data.map(material => `
+                try {
+                    const response = await fetch(`${API_BASE}/GetMaterials`);
+                    const result = await response.json();
+
+                    showLoading(false);
+
+                    if (
+                        result.code === 200 &&
+                        result.data &&
+                        result.data.length > 0
+                    ) {
+                        tbody.innerHTML = result.data
+                            .map(
+                                (material) => `
                         <tr>
                             <td><strong>${material.materialCode}</strong></td>
                             <td>${material.name}</td>
                         </tr>
-                    `).join('');
-                    tableContainer.style.display = 'block';
-                } else {
-                    showEmpty(true);
+                    `,
+                            )
+                            .join("");
+                        tableContainer.style.display = "block";
+                    } else {
+                        showEmpty(true);
+                    }
+                } catch (error) {
+                    showLoading(false);
+                    showMessage("加载失败：" + error.message, "error");
                 }
-            } catch (error) {
-                showLoading(false);
-                showMessage('加载失败：' + error.message, 'error');
-            }
-        }
-
-        function showAddModal() {
-            document.getElementById('newMaterialCode').value = '';
-            document.getElementById('newMaterialName').value = '';
-            addModalInstance = new bootstrap.Modal(document.getElementById('addModal'));
-            addModalInstance.show();
-        }
-
-        async function addMaterial() {
-            const materialCode = document.getElementById('newMaterialCode').value.trim();
-            const materialName = document.getElementById('newMaterialName').value.trim();
-
-            if (!materialCode) {
-                showMessage('请输入物料代码', 'error');
-                return;
             }
 
-            if (!materialName) {
-                showMessage('请输入物料名称', 'error');
-                return;
+            function showAddModal() {
+                document.getElementById("newMaterialCode").value = "";
+                document.getElementById("newMaterialName").value = "";
+                addModalInstance = new bootstrap.Modal(
+                    document.getElementById("addModal"),
+                );
+                addModalInstance.show();
             }
 
-            try {
-                const response = await fetch(`${API_BASE}/AddMaterial`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ materialCode, name: materialName })
-                });
+            async function addMaterial() {
+                const materialCode = document
+                    .getElementById("newMaterialCode")
+                    .value.trim();
+                const materialName = document
+                    .getElementById("newMaterialName")
+                    .value.trim();
 
-                const result = await response.json();
-
-                if (result.code === 200) {
-                    showMessage('添加成功', 'success');
-                    addModalInstance.hide();
-                    loadMaterials();
-                } else {
-                    showMessage('添加失败：' + result.message, 'error');
+                if (!materialCode) {
+                    showMessage("请输入物料代码", "error");
+                    return;
                 }
-            } catch (error) {
-                showMessage('添加失败：' + error.message, 'error');
-            }
-        }
 
-        window.onload = () => loadMaterials();
-    </script>
-</body>
+                if (!materialName) {
+                    showMessage("请输入物料名称", "error");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/AddMaterial`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            materialCode,
+                            name: materialName,
+                        }),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.code === 200) {
+                        showMessage("添加成功", "success");
+                        addModalInstance.hide();
+                        loadMaterials();
+                    } else {
+                        showMessage("添加失败：" + result.message, "error");
+                    }
+                } catch (error) {
+                    showMessage("添加失败：" + error.message, "error");
+                }
+            }
+
+            window.onload = () => loadMaterials();
+        </script>
+    </body>
 </html>

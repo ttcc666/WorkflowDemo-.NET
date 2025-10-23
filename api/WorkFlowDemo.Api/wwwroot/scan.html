@@ -1,257 +1,371 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物料扫描系统</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/site.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container py-4">
-        <div class="main-container">
-            <h1 class="page-title">
-                <i class="bi bi-upc-scan text-primary"></i>
-                物料扫描系统
-            </h1>
-            
-            <!-- 开始扫描区域 -->
-            <div id="startSection">
-                <div class="text-center py-5">
-                    <i class="bi bi-qr-code-scan" style="font-size: 5rem; color: var(--primary-color);"></i>
-                    <p class="mt-4 text-muted">点击下方按钮开始扫描物料</p>
-                    <button class="btn btn-gradient btn-lg mt-3" onclick="startScan()">
-                        <i class="bi bi-play-circle me-2"></i>开始扫描
-                    </button>
-                    <a href="index.html" class="btn btn-secondary btn-lg mt-3 ms-2">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>物料扫描系统</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+            rel="stylesheet"
+        />
+        <link href="css/site.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container py-4">
+            <div class="main-container">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <h1 class="page-title mb-0">
+                        <i class="bi bi-upc-scan text-primary"></i>
+                        物料扫描系统
+                    </h1>
+                    <a href="index.html" class="btn btn-outline-secondary">
                         <i class="bi bi-house me-2"></i>返回首页
                     </a>
                 </div>
-            </div>
 
-            <!-- 扫描操作区域 -->
-            <div id="scanSection" class="d-none">
-                <div class="batch-info">
-                    <i class="bi bi-tag-fill me-2"></i>
-                    <strong>批号：</strong>
-                    <span id="batchNumber" class="fs-5"></span>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="materialCode" class="form-label">
-                                    <i class="bi bi-upc me-2"></i>物料代码
-                                </label>
-                                <input type="text" class="form-control form-control-lg" id="materialCode" 
-                                       placeholder="请输入物料代码" autofocus>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="qty" class="form-label">
-                                    <i class="bi bi-123 me-2"></i>数量
-                                </label>
-                                <input type="number" class="form-control form-control-lg" id="qty" 
-                                       placeholder="请输入数量" value="1" min="0.01" step="0.01">
-                            </div>
+                <!-- 开始扫描区域 -->
+                <div id="startSection">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i
+                                class="bi bi-qr-code-scan"
+                                style="
+                                    font-size: 6rem;
+                                    color: var(--primary-color);
+                                    opacity: 0.8;
+                                "
+                            ></i>
                         </div>
+                        <h3 class="mb-3">准备开始扫描</h3>
+                        <p class="text-muted mb-4">
+                            点击下方按钮生成批号并开始扫描物料
+                        </p>
+                        <button
+                            class="btn btn-gradient btn-lg px-5 py-3"
+                            onclick="startScan()"
+                        >
+                            <i class="bi bi-play-circle me-2"></i>开始扫描
+                        </button>
                     </div>
                 </div>
 
-                <div class="d-grid gap-2 mb-4">
-                    <button class="btn btn-success btn-lg" onclick="scanItem()">
-                        <i class="bi bi-check-circle me-2"></i>扫描
-                    </button>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button class="btn btn-gradient w-100" onclick="completeScan()">
+                <!-- 扫描操作区域 -->
+                <div id="scanSection" class="d-none">
+                    <!-- 批号信息 -->
+                    <div
+                        class="alert alert-info d-flex align-items-center mb-4"
+                        role="alert"
+                    >
+                        <i class="bi bi-tag-fill me-3 fs-4"></i>
+                        <div>
+                            <div class="fw-bold">当前批号</div>
+                            <div class="fs-5" id="batchNumber"></div>
+                        </div>
+                    </div>
+
+                    <!-- 扫描输入区 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">
+                                <i class="bi bi-upc-scan me-2"></i>扫描物料
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label
+                                        for="materialCode"
+                                        class="form-label fw-semibold"
+                                    >
+                                        <i class="bi bi-upc me-2"></i>物料代码
+                                    </label>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg"
+                                        id="materialCode"
+                                        placeholder="请输入或扫描物料代码"
+                                        autofocus
+                                    />
+                                </div>
+                                <div class="col-md-4">
+                                    <label
+                                        for="qty"
+                                        class="form-label fw-semibold"
+                                    >
+                                        <i class="bi bi-123 me-2"></i>数量
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control form-control-lg"
+                                        id="qty"
+                                        placeholder="数量"
+                                        value="1"
+                                        min="0.01"
+                                        step="0.01"
+                                    />
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button
+                                    class="btn btn-success btn-lg w-100 py-3"
+                                    onclick="scanItem()"
+                                >
+                                    <i class="bi bi-check-circle me-2"></i
+                                    >确认扫描
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-gradient btn-lg w-100 py-3"
+                                onclick="completeScan()"
+                            >
                                 <i class="bi bi-check-all me-2"></i>完成扫描
                             </button>
                         </div>
-                        <div class="col-6">
-                            <button class="btn btn-secondary w-100" onclick="cancelScan()">
-                                <i class="bi bi-x-circle me-2"></i>取消
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-secondary btn-lg w-100 py-3"
+                                onclick="cancelScan()"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>取消扫描
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="bi bi-list-check me-2"></i>已扫描记录
-                            <span class="badge bg-primary ms-2" id="scanCount">0</span>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="scanItems"></div>
-                        <div id="noScans" class="text-center text-muted py-4">
-                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-                            <p class="mt-2">暂无扫描记录</p>
+                    <!-- 扫描记录 -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <div
+                                class="d-flex justify-content-between align-items-center"
+                            >
+                                <h5 class="mb-0">
+                                    <i class="bi bi-list-check me-2"></i
+                                    >已扫描记录
+                                </h5>
+                                <span
+                                    class="badge bg-primary rounded-pill px-3 py-2"
+                                    id="scanCount"
+                                    >0</span
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="card-body p-3"
+                            style="max-height: 400px; overflow-y: auto"
+                        >
+                            <div id="scanItems"></div>
+                            <div
+                                id="noScans"
+                                class="text-center text-muted py-5"
+                            >
+                                <i
+                                    class="bi bi-inbox"
+                                    style="font-size: 3rem; opacity: 0.3"
+                                ></i>
+                                <p class="mt-3 mb-0">暂无扫描记录</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/site.js"></script>
-    <script>
-        const API_BASE = '/Material';
-        let currentBatchNumber = '';
-        let scanCount = 0;
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/site.js"></script>
+        <script>
+            const API_BASE = "/Material";
+            let currentBatchNumber = "";
+            let scanCount = 0;
 
-        async function startScan() {
-            try {
-                const response = await fetch(`${API_BASE}/GenerateBatchNumber`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+            async function startScan() {
+                try {
+                    const response = await fetch(
+                        `${API_BASE}/GenerateBatchNumber`,
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.code === 200) {
+                        currentBatchNumber = result.data;
+                        scanCount = 0;
+                        document.getElementById("batchNumber").textContent =
+                            currentBatchNumber;
+                        document
+                            .getElementById("startSection")
+                            .classList.add("d-none");
+                        document
+                            .getElementById("scanSection")
+                            .classList.remove("d-none");
+                        document.getElementById("scanItems").innerHTML = "";
+                        document.getElementById("noScans").style.display =
+                            "block";
+                        updateScanCount();
+                        document.getElementById("materialCode").focus();
+                        showMessage("批号生成成功，请开始扫描", "success");
+                    } else {
+                        showMessage(
+                            "生成批号失败：" + (result.message || "未知错误"),
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    showMessage("生成批号失败：" + error.message, "error");
                 }
-                
-                const result = await response.json();
-                
-                if (result.code === 200) {
-                    currentBatchNumber = result.data;
-                    scanCount = 0;
-                    document.getElementById('batchNumber').textContent = currentBatchNumber;
-                    document.getElementById('startSection').classList.add('d-none');
-                    document.getElementById('scanSection').classList.remove('d-none');
-                    document.getElementById('scanItems').innerHTML = '';
-                    document.getElementById('noScans').style.display = 'block';
-                    updateScanCount();
-                    document.getElementById('materialCode').focus();
-                    showMessage('批号生成成功，请开始扫描', 'success');
-                } else {
-                    showMessage('生成批号失败：' + (result.message || '未知错误'), 'error');
+            }
+
+            async function scanItem() {
+                const materialCode = document
+                    .getElementById("materialCode")
+                    .value.trim();
+                const qty = parseFloat(document.getElementById("qty").value);
+
+                if (!materialCode) {
+                    showMessage("请输入物料代码", "error");
+                    return;
                 }
-            } catch (error) {
-                showMessage('生成批号失败：' + error.message, 'error');
-            }
-        }
 
-        async function scanItem() {
-            const materialCode = document.getElementById('materialCode').value.trim();
-            const qty = parseFloat(document.getElementById('qty').value);
-
-            if (!materialCode) {
-                showMessage('请输入物料代码', 'error');
-                return;
-            }
-
-            if (!qty || qty <= 0) {
-                showMessage('请输入有效数量', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/ScanItem`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        batchNumber: currentBatchNumber,
-                        materialCode: materialCode,
-                        qty: qty
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.code === 200) {
-                    scanCount++;
-                    addScanItem(materialCode, qty);
-                    updateScanCount();
-                    showMessage('扫描成功', 'success');
-                    document.getElementById('materialCode').value = '';
-                    document.getElementById('qty').value = '1';
-                    document.getElementById('materialCode').focus();
-                } else {
-                    showMessage('扫描失败：' + result.message, 'error');
+                if (!qty || qty <= 0) {
+                    showMessage("请输入有效数量", "error");
+                    return;
                 }
-            } catch (error) {
-                showMessage('扫描失败：' + error.message, 'error');
-            }
-        }
 
-        async function completeScan() {
-            if (scanCount === 0) {
-                showMessage('请至少扫描一条记录', 'error');
-                return;
-            }
+                try {
+                    const response = await fetch(`${API_BASE}/ScanItem`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            batchNumber: currentBatchNumber,
+                            materialCode: materialCode,
+                            qty: qty,
+                        }),
+                    });
 
-            try {
-                const response = await fetch('/workflows/material-outbound', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        batchNumber: currentBatchNumber,
-                        operator: 'System'
-                    })
-                });
+                    const result = await response.json();
 
-                const result = await response.json();
-
-                if (result.code === 200) {
-                    showMessage(`扫描完成！共扫描 ${scanCount} 条记录`, 'success');
-                    setTimeout(() => {
-                        resetScan();
-                    }, 2000);
-                } else {
-                    showMessage('完成扫描失败：' + (result.message || '未知错误'), 'error');
+                    if (result.code === 200) {
+                        scanCount++;
+                        addScanItem(materialCode, qty);
+                        updateScanCount();
+                        showMessage("扫描成功", "success");
+                        document.getElementById("materialCode").value = "";
+                        document.getElementById("qty").value = "1";
+                        document.getElementById("materialCode").focus();
+                    } else {
+                        showMessage("扫描失败：" + result.message, "error");
+                    }
+                } catch (error) {
+                    showMessage("扫描失败：" + error.message, "error");
                 }
-            } catch (error) {
-                showMessage('完成扫描失败：' + error.message, 'error');
             }
-        }
 
-        function cancelScan() {
-            if (confirm('确定要取消当前扫描吗？')) {
-                resetScan();
+            async function completeScan() {
+                if (scanCount === 0) {
+                    showMessage("请至少扫描一条记录", "error");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        "/workflows/material-outbound",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                batchNumber: currentBatchNumber,
+                                operator: "System",
+                            }),
+                        },
+                    );
+
+                    const result = await response.json();
+
+                    if (result.code === 200) {
+                        showMessage(
+                            `扫描完成！共扫描 ${scanCount} 条记录`,
+                            "success",
+                        );
+                        setTimeout(() => {
+                            resetScan();
+                        }, 2000);
+                    } else {
+                        showMessage(
+                            "完成扫描失败：" + (result.message || "未知错误"),
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    showMessage("完成扫描失败：" + error.message, "error");
+                }
             }
-        }
 
-        function resetScan() {
-            document.getElementById('scanSection').classList.add('d-none');
-            document.getElementById('startSection').classList.remove('d-none');
-            document.getElementById('materialCode').value = '';
-            document.getElementById('qty').value = '1';
-            currentBatchNumber = '';
-            scanCount = 0;
-        }
+            function cancelScan() {
+                if (confirm("确定要取消当前扫描吗？")) {
+                    resetScan();
+                }
+            }
 
-        function addScanItem(materialCode, qty) {
-            const scanItems = document.getElementById('scanItems');
-            const noScans = document.getElementById('noScans');
-            
-            noScans.style.display = 'none';
-            
-            const item = document.createElement('div');
-            item.className = 'scan-item';
-            item.innerHTML = `
+            function resetScan() {
+                document.getElementById("scanSection").classList.add("d-none");
+                document
+                    .getElementById("startSection")
+                    .classList.remove("d-none");
+                document.getElementById("materialCode").value = "";
+                document.getElementById("qty").value = "1";
+                currentBatchNumber = "";
+                scanCount = 0;
+            }
+
+            function addScanItem(materialCode, qty) {
+                const scanItems = document.getElementById("scanItems");
+                const noScans = document.getElementById("noScans");
+
+                noScans.style.display = "none";
+
+                const item = document.createElement("div");
+                item.className = "scan-item mb-2";
+                item.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <strong>${materialCode}</strong>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                        <div>
+                            <div class="fw-bold">${materialCode}</div>
+                            <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+                        </div>
                     </div>
-                    <span class="badge bg-primary">数量: ${qty}</span>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">数量: ${qty}</span>
                 </div>
             `;
-            scanItems.appendChild(item);
-        }
+                scanItems.insertBefore(item, scanItems.firstChild);
+            }
 
-        function updateScanCount() {
-            document.getElementById('scanCount').textContent = scanCount;
-        }
+            function updateScanCount() {
+                document.getElementById("scanCount").textContent = scanCount;
+            }
 
-        document.getElementById('materialCode').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') scanItem();
-        });
+            document
+                .getElementById("materialCode")
+                .addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") scanItem();
+                });
 
-        document.getElementById('qty').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') scanItem();
-        });
-    </script>
-</body>
+            document.getElementById("qty").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") scanItem();
+            });
+        </script>
+    </body>
 </html>
