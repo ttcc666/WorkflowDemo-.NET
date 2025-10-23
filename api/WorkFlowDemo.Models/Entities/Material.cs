@@ -7,9 +7,9 @@ namespace WorkFlowDemo.Models.Entities
     public class Material
     {
         [SugarColumn(IsPrimaryKey = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         [SugarColumn(ColumnName = "MaterialCode")]
-        public string MaterialCode { get; set; }
-        public string Name { get; set; }
+        public string MaterialCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
     }
 }

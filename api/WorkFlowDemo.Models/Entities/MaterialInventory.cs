@@ -9,9 +9,9 @@ namespace WorkFlowDemo.Models.Entities
     public class MaterialInventory
     {
         [SugarColumn(IsPrimaryKey = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         [SugarColumn(ColumnName = "MaterialCode")]
-        public string MaterialCode { get; set; }
+        public string MaterialCode { get; set; } = string.Empty;
         public decimal Qty { get; set; }
         public DateTime? CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }

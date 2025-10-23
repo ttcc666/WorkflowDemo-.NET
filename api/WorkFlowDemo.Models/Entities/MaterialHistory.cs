@@ -7,13 +7,13 @@ namespace WorkFlowDemo.Models.Entities
     public class MaterialHistory
     {
         [SugarColumn(IsPrimaryKey = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [SugarColumn(ColumnName = "BatchNumber")]
-        public string BatchNumber { get; set; }
+        public string BatchNumber { get; set; } = string.Empty;
 
         [SugarColumn(ColumnName = "MaterialCode")]
-        public string MaterialCode { get; set; }
+        public string MaterialCode { get; set; } = string.Empty;
 
         public decimal Qty { get; set; }
 
@@ -21,7 +21,7 @@ namespace WorkFlowDemo.Models.Entities
         public DateTime OperationTime { get; set; }
 
         [SugarColumn(ColumnName = "Operator")]
-        public string Operator { get; set; }
+        public string Operator { get; set; } = string.Empty;
 
 
         [SugarColumn(ColumnName = "CreatimeTime")]

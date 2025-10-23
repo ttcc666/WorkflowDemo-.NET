@@ -50,14 +50,14 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     new SetVariable
                     {
                         Variable = shouldSimulateFailure,
-                        Value = new(context => orderInput.Get(context).OrderAmount > 1000)
+                        Value = new(context => (orderInput.Get(context)?.OrderAmount ?? 0) > 1000)
                     },
                     
                     // 步骤1: 库存预留
                     new ReserveInventoryActivity
                     {
-                        ProductId = new(context => orderInput.Get(context).ProductId),
-                        Quantity = new(context => orderInput.Get(context).Quantity)
+                        ProductId = new(context => orderInput.Get(context)?.ProductId ?? string.Empty),
+                        Quantity = new(context => orderInput.Get(context)?.Quantity ?? 0)
                     },
                     new SetVariable
                     {
@@ -73,8 +73,8 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     // 步骤2: 优惠券核销
                     new ApplyCouponActivity
                     {
-                        CouponCode = new(context => orderInput.Get(context).CouponCode),
-                        OrderAmount = new(context => orderInput.Get(context).OrderAmount),
+                        CouponCode = new(context => orderInput.Get(context)?.CouponCode ?? string.Empty),
+                        OrderAmount = new(context => orderInput.Get(context)?.OrderAmount ?? 0),
                         Result = new(discountedAmount)
                     },
                     new LogWorkflowStatusActivity
@@ -87,7 +87,7 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     new ProcessPaymentActivity
                     {
                         OrderAmount = new(discountedAmount),
-                        UserId = new(context => orderInput.Get(context).UserId),
+                        UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                         Result = new(paymentId)
                     },
                     new SetVariable
@@ -128,9 +128,9 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                                 // 步骤4: 创建发货单
                                 new CreateShipmentActivity
                                 {
-                                    ProductId = new(context => orderInput.Get(context).ProductId),
-                                    Quantity = new(context => orderInput.Get(context).Quantity),
-                                    UserId = new(context => orderInput.Get(context).UserId),
+                                    ProductId = new(context => orderInput.Get(context)?.ProductId ?? string.Empty),
+                                    Quantity = new(context => orderInput.Get(context)?.Quantity ?? 0),
+                                    UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                                     Result = new(shipmentId)
                                 },
                                 new SetVariable
@@ -148,7 +148,7 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                                 new AwardPointsActivity
                                 {
                                     OrderAmount = new(discountedAmount),
-                                    UserId = new(context => orderInput.Get(context).UserId),
+                                    UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                                     Result = new(points)
                                 },
                                 new LogWorkflowStatusActivity
@@ -260,16 +260,16 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                                                     {
                                                         new RollbackInventoryActivity
                                                         {
-                                                            ProductId = new(context => orderInput.Get(context).ProductId),
-                                                            Quantity = new(context => orderInput.Get(context).Quantity)
+                                                            ProductId = new(context => orderInput.Get(context)?.ProductId ?? string.Empty),
+                                                            Quantity = new(context => orderInput.Get(context)?.Quantity ?? 0)
                                                         },
                                                         new LogWorkflowStatusActivity
                                                         {
                                                             StepName = new("补偿-释放库存"),
-                                                            StatusMessage = new(context => 
+                                                            StatusMessage = new(context =>
                                                             {
                                                                 var input = orderInput.Get(context);
-                                                                return $"↩️ 库存已释放: ProductId={input.ProductId}, Quantity={input.Quantity}";
+                                                                return $"↩️ 库存已释放: ProductId={input?.ProductId ?? "N/A"}, Quantity={input?.Quantity ?? 0}";
                                                             })
                                                         }
                                                     }

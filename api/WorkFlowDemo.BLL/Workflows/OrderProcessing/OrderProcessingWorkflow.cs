@@ -39,8 +39,8 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     },
                     new ReserveInventoryActivity
                     {
-                        ProductId = new(context => orderInput.Get(context).ProductId),
-                        Quantity = new(context => orderInput.Get(context).Quantity)
+                        ProductId = new(context => orderInput.Get(context)?.ProductId ?? string.Empty),
+                        Quantity = new(context => orderInput.Get(context)?.Quantity ?? 0)
                     },
                     new LogWorkflowStatusActivity
                     {
@@ -49,8 +49,8 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     },
                     new ApplyCouponActivity
                     {
-                        CouponCode = new(context => orderInput.Get(context).CouponCode),
-                        OrderAmount = new(context => orderInput.Get(context).OrderAmount),
+                        CouponCode = new(context => orderInput.Get(context)?.CouponCode ?? string.Empty),
+                        OrderAmount = new(context => orderInput.Get(context)?.OrderAmount ?? 0),
                         Result = new(discountedAmount)
                     },
                     new LogWorkflowStatusActivity
@@ -61,7 +61,7 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     new ProcessPaymentActivity
                     {
                         OrderAmount = new(discountedAmount),
-                        UserId = new(context => orderInput.Get(context).UserId),
+                        UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                         Result = new(paymentId)
                     },
                     new LogWorkflowStatusActivity
@@ -71,9 +71,9 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     },
                     new CreateShipmentActivity
                     {
-                        ProductId = new(context => orderInput.Get(context).ProductId),
-                        Quantity = new(context => orderInput.Get(context).Quantity),
-                        UserId = new(context => orderInput.Get(context).UserId),
+                        ProductId = new(context => orderInput.Get(context)?.ProductId ?? string.Empty),
+                        Quantity = new(context => orderInput.Get(context)?.Quantity ?? 0),
+                        UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                         Result = new(shipmentId)
                     },
                     new LogWorkflowStatusActivity
@@ -84,7 +84,7 @@ namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
                     new AwardPointsActivity
                     {
                         OrderAmount = new(discountedAmount),
-                        UserId = new(context => orderInput.Get(context).UserId),
+                        UserId = new(context => orderInput.Get(context)?.UserId ?? string.Empty),
                         Result = new(points)
                     },
                     new LogWorkflowStatusActivity
