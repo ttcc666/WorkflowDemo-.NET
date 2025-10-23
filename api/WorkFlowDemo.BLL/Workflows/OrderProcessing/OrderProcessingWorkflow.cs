@@ -1,10 +1,11 @@
 using Elsa.Http;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
-using WorkFlowDemo.BLL.Activities;
+using WorkFlowDemo.BLL.Activities.OrderProcessing;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.Models.Dtos;
 
-namespace WorkFlowDemo.BLL.Workflows
+namespace WorkFlowDemo.BLL.Workflows.OrderProcessing
 {
     /// <summary>
     /// 订单处理工作流

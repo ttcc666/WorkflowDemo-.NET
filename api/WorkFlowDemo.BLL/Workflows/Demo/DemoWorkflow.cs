@@ -1,8 +1,8 @@
-﻿using Elsa.Http;
+using Elsa.Http;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 
-namespace WorkFlowDemo.BLL.Workflows
+namespace WorkFlowDemo.BLL.Workflows.Demo
 {
     public class DemoWorkflow : WorkflowBase
     {

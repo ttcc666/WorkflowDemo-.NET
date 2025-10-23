@@ -4,8 +4,7 @@ using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
 
-namespace WorkFlowDemo.BLL.Activities
-{
+namespace WorkFlowDemo.BLL.Activities.Compensation {
     /// <summary>
     /// 回滚库存预留活动
     /// </summary>

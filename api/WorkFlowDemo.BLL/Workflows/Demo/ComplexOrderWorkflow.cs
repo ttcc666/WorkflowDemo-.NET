@@ -1,11 +1,11 @@
-﻿using Elsa.Http;
+using Elsa.Http;
 using Elsa.Scheduling.Activities;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
-using WorkFlowDemo.BLL.Activities;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.Models.Dtos;
 
-namespace ECommerceWorkflows;
+namespace WorkFlowDemo.BLL.Workflows.Demo;
 
 /// <summary>
 /// 复杂的电商订单处理工作流

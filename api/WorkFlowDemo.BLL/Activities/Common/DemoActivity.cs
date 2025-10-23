@@ -1,4 +1,4 @@
-﻿using Elsa.Extensions;
+using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities.Flowchart.Attributes;
 using Elsa.Workflows.Attributes;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WorkFlowDemo.BLL.Services;
 using WorkFlowDemo.Models.Dtos;
 
-namespace WorkFlowDemo.BLL.Activities
+namespace WorkFlowDemo.BLL.Activities.Common
 {
     [FlowNode("true", "false")]
     public class DemoActivity : CodeActivity

@@ -4,8 +4,7 @@ using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
 
-namespace WorkFlowDemo.BLL.Activities
-{
+namespace WorkFlowDemo.BLL.Activities.OrderProcessing {
     /// <summary>
     /// 积分发放活动
     /// </summary>

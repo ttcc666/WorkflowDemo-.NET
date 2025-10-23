@@ -2,8 +2,8 @@ using WorkFlowDemo.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 添加 Elsa 工作流服务
-builder.Services.AddElsaWorkflow();
+// 添加 Elsa 工作流服务（带持久化）
+builder.Services.AddElsaWorkflow(builder.Configuration);
 
 // 添加 CORS 策略
 builder.Services.AddCorsPolicy();

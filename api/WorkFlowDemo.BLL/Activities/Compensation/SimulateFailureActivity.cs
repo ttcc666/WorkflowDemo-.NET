@@ -4,8 +4,7 @@ using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
 
-namespace WorkFlowDemo.BLL.Activities
-{
+namespace WorkFlowDemo.BLL.Activities.Compensation {
     /// <summary>
     /// 模拟失败活动 - 用于测试补偿机制
     /// </summary>
