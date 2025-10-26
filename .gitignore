@@ -109,3 +109,5 @@ yarn-error.log*
 # Azure Functions (if applicable)
 local.settings.json
 host.json
+
+api/WorkFlowDemo.Api/elsa.db

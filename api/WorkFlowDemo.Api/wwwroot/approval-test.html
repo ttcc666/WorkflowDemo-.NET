@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审批工作流测试</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>审批工作流测试</h1>
+
+        <div class="section">
+            <h2>1. 提交审批请求</h2>
+            <form id="startForm">
+                <div class="form-group">
+                    <label>申请人:</label>
+                    <input type="text" id="applicant" value="张三" required>
+                </div>
+                <div class="form-group">
+                    <label>申请内容:</label>
+                    <input type="text" id="content" value="请假申请" required>
+                </div>
+                <button type="submit">提交审批</button>
+            </form>
+            <div id="startResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. 审批决策</h2>
+            <p class="info">工作流实例 ID: <span id="workflowId">-</span></p>
+            <div class="button-group">
+                <button onclick="approve()" class="btn-success">批准</button>
+                <button onclick="reject()" class="btn-danger">拒绝</button>
+            </div>
+            <div id="decisionResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>说明</h2>
+            <ul>
+                <li>第一步：填写申请信息并提交，工作流将启动并暂停等待审批</li>
+                <li>第二步：记录返回的工作流实例 ID，然后点击"批准"或"拒绝"按钮</li>
+                <li>批准：工作流继续执行并成功完成</li>
+                <li>拒绝：工作流终止</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentWorkflowId = null;
+
+        document.getElementById('startForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const applicant = document.getElementById('applicant').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                const response = await fetch('http://localhost:5085/workflows/approval/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ applicant, content })
+                });
+
+                const result = await response.json();
+
+                // 从响应体获取工作流实例 ID
+                currentWorkflowId = result.data?.workflowInstanceId || null;
+
+                document.getElementById('workflowId').textContent = currentWorkflowId || '未获取到';
+                document.getElementById('startResult').innerHTML =
+                    `<div class="success">✅ ${result.data?.message || result.message || '成功'}</div>
+                     <div class="info">工作流 ID: ${currentWorkflowId}</div>`;
+
+                console.log('工作流实例 ID:', currentWorkflowId);
+                console.log('完整响应:', result);
+            } catch (error) {
+                document.getElementById('startResult').innerHTML =
+                    `<div class="error">❌ 错误: ${error.message}</div>`;
+            }
+        });
+
+        async function approve() {
+            await makeDecision('approved');
+        }
+
+        async function reject() {
+            await makeDecision('rejected');
+        }
+
+        async function makeDecision(decision) {
+            if (!currentWorkflowId) {
+                alert('请先提交审批请求！');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5085/workflows/approval/decision/${currentWorkflowId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ decision: decision })
+                });
+
+                const result = await response.json();
+
+                const isSuccess = result.success || response.ok;
+                document.getElementById('decisionResult').innerHTML =
+                    `<div class="${isSuccess ? 'success' : 'error'}">
+                        ${isSuccess ? '✅' : '❌'} ${result.message || result.data}
+                     </div>`;
+
+                if (isSuccess) {
+                    currentWorkflowId = null;
+                    document.getElementById('workflowId').textContent = '-';
+                }
+            } catch (error) {
+                document.getElementById('decisionResult').innerHTML =
+                    `<div class="error">❌ 错误: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>
