@@ -111,3 +111,9 @@ local.settings.json
 host.json
 
 api/WorkFlowDemo.Api/elsa.db
+
+api/WorkFlowDemo.Api/elsa.db-shm
+
+api/WorkFlowDemo.Api/elsa.db-wal
+
+api/.claude/
