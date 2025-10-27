@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace WorkFlowDemo.BLL.Activities.Common
 {
-    /// <summary>
-    /// 工作流状态日志活动
-    /// </summary>
+    [Activity("WorkflowDemo", "Common", "记录工作流状态")]
     public class LogWorkflowStatusActivity : CodeActivity
     {
         [Input(Description = "步骤名称")]
@@ -20,18 +18,10 @@ namespace WorkFlowDemo.BLL.Activities.Common
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
             var logger = context.GetRequiredService<ILogger<LogWorkflowStatusActivity>>();
-            var stepName = StepName.Get(context);
-            var statusMessage = StatusMessage.Get(context);
-
-            var workflowInstanceId = context.WorkflowExecutionContext.Id;
-            
-            logger.LogInformation(
-                "工作流状态更新 [WorkflowId: {WorkflowId}] - 步骤: {StepName}, 状态: {StatusMessage}",
-                workflowInstanceId,
-                stepName,
-                statusMessage
-            );
-
+            logger.LogInformation("工作流状态 [Id: {Id}] - 步骤: {Step}, 状态: {Status}",
+                context.WorkflowExecutionContext.Id,
+                StepName.GetOrDefault(context) ?? "未知",
+                StatusMessage.GetOrDefault(context) ?? "无");
             await Task.CompletedTask;
         }
     }

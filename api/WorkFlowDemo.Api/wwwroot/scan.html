@@ -281,14 +281,9 @@
 
                 try {
                     const response = await fetch(
-                        "/workflows/material-outbound",
+                        `/Demo/StartMaterialOutBoundWorkflow?materialOutBatchNo=${currentBatchNumber}`,
                         {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                batchNumber: currentBatchNumber,
-                                operator: "System",
-                            }),
+                            method: "GET"
                         },
                     );
 

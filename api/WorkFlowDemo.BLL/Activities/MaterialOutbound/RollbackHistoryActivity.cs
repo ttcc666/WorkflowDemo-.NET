@@ -3,53 +3,24 @@ using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.DAL.Repositories;
 
 namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 {
-    /// <summary>
-    /// 回滚履历活动
-    /// </summary>
     [Activity("MaterialOutbound", "回滚履历", "删除已写入的履历记录")]
-    public class RollbackHistoryActivity : CodeActivity<bool>
+    public class RollbackHistoryActivity : BaseActivity<bool>
     {
         [Input(Description = "履历ID列表")]
         public Input<List<string>> HistoryIds { get; set; } = default!;
 
-        protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
+        protected override async ValueTask<bool> ExecuteActivityAsync(ActivityExecutionContext context, ILogger logger)
         {
-            var materialRepository = context.GetRequiredService<IMaterialRepository>();
-            var logger = context.GetRequiredService<ILogger<RollbackHistoryActivity>>();
             var historyIds = HistoryIds.Get(context);
+            if (historyIds?.Any() != true) return true;
 
-            logger.LogInformation("开始回滚履历，记录数: {Count}", historyIds?.Count ?? 0);
-
-            try
-            {
-                if (historyIds == null || !historyIds.Any())
-                {
-                    logger.LogWarning("履历ID列表为空，无需回滚");
-                    context.Set(Result, true);
-                    return;
-                }
-
-                var success = await materialRepository.DeleteHistoryByIdsAsync(historyIds);
-
-                if (!success)
-                {
-                    logger.LogError("回滚履历失败");
-                    context.Set(Result, false);
-                    return;
-                }
-
-                logger.LogInformation("成功回滚履历，记录数: {Count}", historyIds.Count);
-                context.Set(Result, true);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "回滚履历失败");
-                throw;
-            }
+            var repository = context.GetRequiredService<IMaterialRepository>();
+            return await repository.DeleteHistoryByIdsAsync(historyIds);
         }
     }
 }

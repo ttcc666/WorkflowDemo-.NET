@@ -1,12 +1,12 @@
 using Elsa.Http;
 using Elsa.Workflows;
 using Elsa.Workflows.Activities;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.BLL.Activities.MaterialOutbound;
 using WorkFlowDemo.Models.Common;
 using WorkFlowDemo.Models.Dtos;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 
 namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
 {
@@ -24,7 +24,7 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
             var updateResultVar = builder.WithVariable<bool>();
             var deleteResultVar = builder.WithVariable<bool>();
             var resultVar = builder.WithVariable<string>();
-            
+
             var jsonOptions = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -42,7 +42,7 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                         CanStartWorkflow = true,
                         ParsedContent = new(inputVar)
                     },
-                    
+
                     new LogWorkflowStatusActivity
                     {
                         StepName = new("开始"),

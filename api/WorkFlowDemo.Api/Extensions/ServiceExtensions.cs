@@ -35,7 +35,8 @@ namespace WorkFlowDemo.Api.Extensions
                 typeof(WorkFlowDemo.Models.Entities.Material),
                 typeof(WorkFlowDemo.Models.Entities.MaterialInventory),
                 typeof(WorkFlowDemo.Models.Entities.MaterialTemporaryScan),
-                typeof(WorkFlowDemo.Models.Entities.MaterialHistory)
+                typeof(WorkFlowDemo.Models.Entities.MaterialHistory),
+                typeof(WorkFlowDemo.Models.Entities.WorkflowBatchBinding)
             );
 
             // 初始化种子数据

@@ -3,46 +3,22 @@ using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.DAL.Repositories;
 
 namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 {
-    /// <summary>
-    /// 删除扫描记录活动
-    /// </summary>
     [Activity("MaterialOutbound", "删除扫描记录", "删除临时扫描记录")]
-    public class DeleteScanRecordsActivity : CodeActivity<bool>
+    public class DeleteScanRecordsActivity : BaseActivity<bool>
     {
         [Input(Description = "批次号")]
         public Input<string> BatchNumber { get; set; } = default!;
 
-        protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
+        protected override async ValueTask<bool> ExecuteActivityAsync(ActivityExecutionContext context, ILogger logger)
         {
-            var scanRepository = context.GetRequiredService<IMaterialTemporaryScanRepository>();
-            var logger = context.GetRequiredService<ILogger<DeleteScanRecordsActivity>>();
             var batchNumber = BatchNumber.Get(context);
-
-            logger.LogInformation("开始删除扫描记录，批次号: {BatchNumber}", batchNumber);
-
-            try
-            {
-                var success = await scanRepository.DeleteByBatchNumberAsync(batchNumber);
-
-                if (!success)
-                {
-                    logger.LogError("删除扫描记录失败，批次号: {BatchNumber}", batchNumber);
-                    context.Set(Result, false);
-                    return;
-                }
-
-                logger.LogInformation("成功删除扫描记录，批次号: {BatchNumber}", batchNumber);
-                context.Set(Result, true);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "删除扫描记录失败，批次号: {BatchNumber}", batchNumber);
-                throw;
-            }
+            var repository = context.GetRequiredService<IMaterialTemporaryScanRepository>();
+            return await repository.DeleteByBatchNumberAsync(batchNumber);
         }
     }
 }

@@ -3,50 +3,33 @@ using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.DAL.Repositories;
 using WorkFlowDemo.Models.Dtos;
 
 namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 {
-    /// <summary>
-    /// 更新库存活动
-    /// </summary>
     [Activity("MaterialOutbound", "更新库存", "扣减物料库存")]
-    public class UpdateInventoryActivity : CodeActivity<bool>
+    public class UpdateInventoryActivity : BaseActivity<bool>
     {
         [Input(Description = "出库详细列表")]
         public Input<List<MaterialOutboundDetailDto>> Details { get; set; } = default!;
 
-        protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
+        protected override async ValueTask<bool> ExecuteActivityAsync(ActivityExecutionContext context, ILogger logger)
         {
-            var materialRepository = context.GetRequiredService<IMaterialRepository>();
-            var logger = context.GetRequiredService<ILogger<UpdateInventoryActivity>>();
             var details = Details.Get(context);
+            if (details?.Any() != true) return true;
 
-            logger.LogInformation("开始更新库存，物料数量: {Count}", details?.Count ?? 0);
-
-            try
+            var repository = context.GetRequiredService<IMaterialRepository>();
+            foreach (var detail in details)
             {
-                foreach (var detail in details ?? new List<MaterialOutboundDetailDto>())
+                if (!await repository.UpdateInventoryAsync(detail.MaterialCode, detail.Qty))
                 {
-                    var success = await materialRepository.UpdateInventoryAsync(detail.MaterialCode, detail.Qty);
-
-                    if (!success)
-                    {
-                        logger.LogError("更新库存失败，物料: {MaterialCode}", detail.MaterialCode);
-                        context.Set(Result, false);
-                        return;
-                    }
+                    logger.LogError("更新库存失败，物料: {Code}", detail.MaterialCode);
+                    return false;
                 }
-
-                logger.LogInformation("成功更新库存");
-                context.Set(Result, true);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "更新库存失败");
-                throw;
-            }
+            return true;
         }
     }
 }

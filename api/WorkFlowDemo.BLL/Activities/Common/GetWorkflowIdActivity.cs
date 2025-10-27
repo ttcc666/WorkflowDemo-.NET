@@ -1,7 +1,6 @@
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
-using Elsa.Workflows.Models;
 
 namespace WorkFlowDemo.BLL.Activities.Common
 {
@@ -10,8 +9,7 @@ namespace WorkFlowDemo.BLL.Activities.Common
     {
         protected override void Execute(ActivityExecutionContext context)
         {
-            var workflowInstanceId = context.WorkflowExecutionContext.Id;
-            context.SetResult(workflowInstanceId);
+            context.SetResult(context.WorkflowExecutionContext.Id);
         }
     }
 }

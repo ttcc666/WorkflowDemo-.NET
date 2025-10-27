@@ -3,17 +3,15 @@ using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.Logging;
+using WorkFlowDemo.BLL.Activities.Common;
 using WorkFlowDemo.DAL.Repositories;
 using WorkFlowDemo.Models.Dtos;
 using WorkFlowDemo.Models.Entities;
 
 namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
 {
-    /// <summary>
-    /// 写入履历活动
-    /// </summary>
     [Activity("MaterialOutbound", "写入履历", "将出库记录写入履历表")]
-    public class WriteHistoryActivity : CodeActivity<List<string>>
+    public class WriteHistoryActivity : BaseActivity<List<string>>
     {
         [Input(Description = "批次号")]
         public Input<string> BatchNumber { get; set; } = default!;
@@ -24,47 +22,33 @@ namespace WorkFlowDemo.BLL.Activities.MaterialOutbound
         [Input(Description = "操作人")]
         public Input<string> Operator { get; set; } = default!;
 
-        protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
+        protected override async ValueTask<List<string>> ExecuteActivityAsync(ActivityExecutionContext context, ILogger logger)
         {
-            var materialRepository = context.GetRequiredService<IMaterialRepository>();
-            var logger = context.GetRequiredService<ILogger<WriteHistoryActivity>>();
             var batchNumber = BatchNumber.Get(context);
             var details = Details.Get(context);
             var operatorName = Operator.Get(context);
+            var repository = context.GetRequiredService<IMaterialRepository>();
+            var historyIds = new List<string>();
+            var now = DateTime.Now;
 
-            logger.LogInformation("开始写入履历，批次号: {BatchNumber}", batchNumber);
-
-            try
+            foreach (var detail in details)
             {
-                var historyIds = new List<string>();
-
-                foreach (var detail in details)
+                var history = new MaterialHistory
                 {
-                    var history = new MaterialHistory
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        BatchNumber = batchNumber,
-                        MaterialCode = detail.MaterialCode,
-                        Qty = detail.Qty,
-                        OperationTime = DateTime.Now,
-                        Operator = operatorName,
-                        CreatimeTime = DateTime.Now
-                    };
+                    Id = Guid.NewGuid().ToString(),
+                    BatchNumber = batchNumber,
+                    MaterialCode = detail.MaterialCode,
+                    Qty = detail.Qty,
+                    OperationTime = now,
+                    Operator = operatorName,
+                    CreatimeTime = now
+                };
 
-                    await materialRepository.InsertHistoryAsync(history);
-                    historyIds.Add(history.Id);
-                }
-
-                logger.LogInformation("成功写入履历，批次号: {BatchNumber}, 记录数: {Count}",
-                    batchNumber, historyIds.Count);
-
-                context.Set(Result, historyIds);
+                await repository.InsertHistoryAsync(history);
+                historyIds.Add(history.Id);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "写入履历失败，批次号: {BatchNumber}", batchNumber);
-                throw;
-            }
+
+            return historyIds;
         }
     }
 }
