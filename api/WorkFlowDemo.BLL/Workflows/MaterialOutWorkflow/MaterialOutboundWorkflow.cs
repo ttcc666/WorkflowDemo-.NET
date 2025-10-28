@@ -105,10 +105,9 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                         Variable = resultVar,
                         Value = new(context => JsonSerializer.Serialize(
                             ApiResponse.Success(new {
-                                message = checkResultVar.Get(context) ? "物料出库流程已启动" : "库存不足，需要审批",
+                                message = "物料出库流程已启动",
                                 batchNumber = batchNoVar.Get(context),
-                                workflowInstanceId = workflowIdVar.Get(context),
-                                requiresApproval = !checkResultVar.Get(context)
+                                workflowInstanceId = workflowIdVar.Get(context)
                             }), jsonOptions))
                     },
 
@@ -235,6 +234,11 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                                     {
                                         Activities =
                                         {
+                                            new UpdateLogApprovalStatusActivity
+                                            {
+                                                BatchNumber = new(batchNoVar)
+                                            },
+
                                             new LogWorkflowStatusActivity
                                             {
                                                 StepName = new("审批通过"),
