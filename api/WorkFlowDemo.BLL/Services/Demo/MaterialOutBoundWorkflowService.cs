@@ -56,11 +56,15 @@ namespace WorkFlowDemo.BLL.Services.Demo
                             BatchNumber = new Input<string>(materialOutBatchNoVar),
                             Result = new Output<List<MaterialOutboundDetailDto>>(MaterialOutboundDetails)
                         },
-                        // 记录明细
                         new LogWorkflowStatusActivity
                         {
                             StepName = new Input<string>("获取出库明细"),
-                            StatusMessage = new Input<string>(Context=> $"批次号 {materialOutBatchNoVar.Get(Context)} 的出库明细：{string.Join(", ", MaterialOutboundDetails.Get(Context).Select(d=> $"物料编码: {d.MaterialCode}, 数量: {d.Qty}"))}")
+                            StatusMessage = new Input<string>(Context=> $"获取到 {MaterialOutboundDetails.Get(Context).Count} 条出库明细"),
+                            StepOrder = new Input<int>(1),
+                            ExecutionStatus = new Input<string>("Completed"),
+                            WorkflowName = new Input<string>(WorkflowName),
+                            BatchNumber = new Input<string>(materialOutBatchNoVar),
+                            Operator = new Input<string>(Operator)
                         },
 
                         // 2 校验库存
@@ -79,7 +83,12 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                     new LogWorkflowStatusActivity
                                     {
                                         StepName = new Input<string>("库存校验"),
-                                        StatusMessage = new Input<string>("库存充足，继续执行出库流程。")
+                                        StatusMessage = new Input<string>("库存充足"),
+                                        StepOrder = new Input<int>(2),
+                                        ExecutionStatus = new Input<string>("Completed"),
+                                        WorkflowName = new Input<string>(WorkflowName),
+                                        BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                        Operator = new Input<string>(Operator)
                                     },
                                     
                                     // 3. 更新库存
@@ -87,12 +96,6 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                     {
                                         Details = new Input<List<MaterialOutboundDetailDto>>(MaterialOutboundDetails),
                                         Result = new Output<bool>(InventoryUpdateResult)
-                                    },
-
-                                    new LogWorkflowStatusActivity
-                                    {
-                                        StepName = new Input<string>("更新库存"),
-                                        StatusMessage = new Input<string>(Context=> $"库存更新结果：{InventoryUpdateResult.Get(Context)}")
                                     },
                                     
                                     // 检查库存更新是否成功
@@ -106,7 +109,12 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                 new LogWorkflowStatusActivity
                                                 {
                                                     StepName = new Input<string>("更新库存"),
-                                                    StatusMessage = new Input<string>("库存更新成功，正在写入履历记录。")
+                                                    StatusMessage = new Input<string>("库存更新成功"),
+                                                    StepOrder = new Input<int>(3),
+                                                    ExecutionStatus = new Input<string>("Completed"),
+                                                    WorkflowName = new Input<string>(WorkflowName),
+                                                    BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                    Operator = new Input<string>(Operator)
                                                 },
                                                 
                                                 // 4. 写入履历
@@ -121,7 +129,12 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                 new LogWorkflowStatusActivity
                                                 {
                                                     StepName = new Input<string>("写入履历"),
-                                                    StatusMessage = new Input<string>(Context=> $"履历记录已创建：{string.Join(", ", HistoryIds.Get(Context))}")
+                                                    StatusMessage = new Input<string>(Context=> $"创建了 {HistoryIds.Get(Context).Count} 条履历记录"),
+                                                    StepOrder = new Input<int>(4),
+                                                    ExecutionStatus = new Input<string>("Completed"),
+                                                    WorkflowName = new Input<string>(WorkflowName),
+                                                    BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                    Operator = new Input<string>(Operator)
                                                 },
                                                 
                                                 // 检查履历是否创建成功
@@ -132,23 +145,11 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                     {
                                                         Activities =
                                                         {
-                                                            new LogWorkflowStatusActivity
-                                                            {
-                                                                StepName = new Input<string>("写入履历"),
-                                                                StatusMessage = new Input<string>("履历记录创建成功，正在删除扫描记录。")
-                                                            },
-                                                            
                                                             // 5. 删除扫描记录
                                                             new DeleteScanRecordsActivity
                                                             {
                                                                 BatchNumber = new Input<string>(materialOutBatchNoVar),
                                                                 Result = new Output<bool>(ScanRecordsDeleteResult)
-                                                            },
-
-                                                            new LogWorkflowStatusActivity
-                                                            {
-                                                                StepName = new Input<string>("删除扫描记录"),
-                                                                StatusMessage = new Input<string>(Context=> $"扫描记录删除结果：{ScanRecordsDeleteResult.Get(Context)}")
                                                             },
                                                             
                                                             // 检查扫描记录删除是否成功
@@ -157,24 +158,24 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                                 Condition = new Input<bool>(Context => ScanRecordsDeleteResult.Get(Context)),
                                                                 Then = new LogWorkflowStatusActivity
                                                                 {
-                                                                    StepName = new Input<string>("流程完成"),
-                                                                    StatusMessage = new Input<string>("物料出库流程已成功完成。")
+                                                                    StepName = new Input<string>("删除扫描记录"),
+                                                                    StatusMessage = new Input<string>("扫描记录删除成功"),
+                                                                    StepOrder = new Input<int>(5),
+                                                                    ExecutionStatus = new Input<string>("Completed"),
+                                                                    WorkflowName = new Input<string>(WorkflowName),
+                                                                    BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                                    Operator = new Input<string>(Operator)
                                                                 },
-                                                                Else = new Sequence
+                                                                Else = new LogWorkflowStatusActivity
                                                                 {
-                                                                    Activities =
-                                                                    {
-                                                                        new LogWorkflowStatusActivity
-                                                                        {
-                                                                            StepName = new Input<string>("删除扫描记录"),
-                                                                            StatusMessage = new Input<string>("扫描记录删除失败，但出库流程已完成。")
-                                                                        },
-                                                                        new LogWorkflowStatusActivity
-                                                                        {
-                                                                            StepName = new Input<string>("删除扫描记录"),
-                                                                            StatusMessage = new Input<string>("可能需要手动清理扫描记录。")
-                                                                        }
-                                                                    }
+                                                                    StepName = new Input<string>("删除扫描记录"),
+                                                                    StatusMessage = new Input<string>("扫描记录删除失败，需要手动清理"),
+                                                                    StepOrder = new Input<int>(5),
+                                                                    ExecutionStatus = new Input<string>("Failed"),
+                                                                    WorkflowName = new Input<string>(WorkflowName),
+                                                                    BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                                    Operator = new Input<string>(Operator),
+                                                                    ErrorMessage = new Input<string>("扫描记录删除失败")
                                                                 }
                                                             }
                                                         }
@@ -186,7 +187,13 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                             new LogWorkflowStatusActivity
                                                             {
                                                                 StepName = new Input<string>("写入履历"),
-                                                                StatusMessage = new Input<string>("履历记录创建失败，正在回滚库存变更。")
+                                                                StatusMessage = new Input<string>("履历记录创建失败，正在回滚库存变更。"),
+                                                                StepOrder = new Input<int>(4),
+                                                                ExecutionStatus = new Input<string>("Compensating"),
+                                                                WorkflowName = new Input<string>(WorkflowName),
+                                                                BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                                Operator = new Input<string>(Operator),
+                                                                ErrorMessage = new Input<string>("履历记录创建失败")
                                                             },
                                                             
                                                             // 回滚库存
@@ -198,7 +205,12 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                             new LogWorkflowStatusActivity
                                                             {
                                                                 StepName = new Input<string>("回滚库存"),
-                                                                StatusMessage = new Input<string>("库存回滚完成。由于履历创建失败，流程已终止。")
+                                                                StatusMessage = new Input<string>("库存回滚完成。由于履历创建失败，流程已终止。"),
+                                                                StepOrder = new Input<int>(6),
+                                                                ExecutionStatus = new Input<string>("Compensated"),
+                                                                WorkflowName = new Input<string>(WorkflowName),
+                                                                BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                                Operator = new Input<string>(Operator)
                                                             }
                                                         }
                                                     }
@@ -212,12 +224,13 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                                 new LogWorkflowStatusActivity
                                                 {
                                                     StepName = new Input<string>("更新库存"),
-                                                    StatusMessage = new Input<string>("库存更新失败，流程已终止。")
-                                                },
-                                                new LogWorkflowStatusActivity
-                                                {
-                                                    StepName = new Input<string>("更新库存"),
-                                                    StatusMessage = new Input<string>("无需回滚，因为库存未被修改。")
+                                                    StatusMessage = new Input<string>("库存更新失败，流程终止"),
+                                                    StepOrder = new Input<int>(3),
+                                                    ExecutionStatus = new Input<string>("Failed"),
+                                                    WorkflowName = new Input<string>(WorkflowName),
+                                                    BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                                    Operator = new Input<string>(Operator),
+                                                    ErrorMessage = new Input<string>("库存更新失败")
                                                 }
                                             }
                                         }
@@ -231,36 +244,30 @@ namespace WorkFlowDemo.BLL.Services.Demo
                                     new LogWorkflowStatusActivity
                                     {
                                         StepName = new Input<string>("校验库存"),
-                                        StatusMessage = new Input<string>("库存不足，流程已终止。")
-                                    },
-                                    new LogWorkflowStatusActivity
-                                    {
-                                        StepName = new Input<string>("校验库存"),
-                                        StatusMessage = new Input<string>("需要人工介入解决库存问题。")
-                                    },
-                                    new LogWorkflowStatusActivity
-                                    {
-                                        StepName = new Input<string>("校验库存"),
-                                        StatusMessage = new Input<string>("流程结束，未对库存或履历进行任何更改。")
+                                        StatusMessage = new Input<string>("库存不足，流程终止"),
+                                        StepOrder = new Input<int>(2),
+                                        ExecutionStatus = new Input<string>("Failed"),
+                                        WorkflowName = new Input<string>(WorkflowName),
+                                        BatchNumber = new Input<string>(materialOutBatchNoVar),
+                                        Operator = new Input<string>(Operator),
+                                        ErrorMessage = new Input<string>("库存不足")
                                     }
                                 }
                             }
                         },
                         
                     
-                    // 最终步骤：记录工作流完成状态
                     new LogWorkflowStatusActivity
                     {
                         StepName = new Input<string>("工作流完成"),
-                        StatusMessage = new Input<string>(Context=> $"批次 {materialOutBatchNoVar.Get(Context)} 的物料出库工作流已处理完成。")
-                    },
-                    new LogWorkflowStatusActivity
-                    {
-                        StepName = new Input<string>("工作流完成"),
-                        StatusMessage = new Input<string>(Context=> $"工作流执行完成时间：{DateTime.Now:yyyy-MM-dd HH:mm:ss}")
+                        StatusMessage = new Input<string>(Context=> $"批次 {materialOutBatchNoVar.Get(Context)} 物料出库工作流执行完成"),
+                        StepOrder = new Input<int>(99),
+                        ExecutionStatus = new Input<string>("Completed"),
+                        WorkflowName = new Input<string>(WorkflowName),
+                        BatchNumber = new Input<string>(materialOutBatchNoVar),
+                        Operator = new Input<string>(Operator)
                     }
                     },
-
 
                 }
             };
