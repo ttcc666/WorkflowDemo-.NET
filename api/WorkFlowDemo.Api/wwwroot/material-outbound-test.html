@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物料出库工作流测试</title>
+    <link rel="stylesheet" href="/css/site.css">
+    <style>
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        .form-section, .result-section, .logs-section { 
+            background: #f5f5f5; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        .success { background: #d4edda; padding: 15px; border-radius: 4px; color: #155724; }
+        .error { background: #f8d7da; padding: 15px; border-radius: 4px; color: #721c24; }
+        .log-entry { 
+            background: white; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            border-left: 4px solid #007bff; 
+            border-radius: 4px; 
+        }
+        .log-entry.completed { border-left-color: #28a745; }
+        .log-entry.failed { border-left-color: #dc3545; }
+        .log-entry.compensating { border-left-color: #ffc107; }
+        .log-entry.pending { border-left-color: #ff9800; }
+        .log-entry .step { font-weight: bold; }
+        .log-entry .status { 
+            float: right; 
+            padding: 2px 8px; 
+            border-radius: 3px; 
+            font-size: 12px; 
+        }
+        .log-entry .status.completed { background: #28a745; color: white; }
+        .log-entry .status.failed { background: #dc3545; color: white; }
+        .log-entry .status.pending { background: #ff9800; color: white; }
+        .log-entry small { color: #666; }
+        .approval-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .approval-section h3 { margin-top: 0; color: #856404; }
+        .approval-buttons { margin-top: 10px; }
+        .approval-buttons button { margin-right: 10px; }
+        .btn-approve { background: #28a745; }
+        .btn-approve:hover { background: #218838; }
+        .btn-reject { background: #dc3545; }
+        .btn-reject:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚚 物料出库工作流测试</h1>
+        
+        <div class="form-section">
+            <h2>启动出库流程</h2>
+            <div class="form-group">
+                <label>批次号：</label>
+                <input type="text" id="batchNumber" value="OUT-2025-001" placeholder="请输入批次号" />
+            </div>
+            <div class="form-group">
+                <label>操作人：</label>
+                <input type="text" id="operator" value="测试用户" placeholder="请输入操作人" />
+            </div>
+            <button onclick="startOutbound()">启动出库</button>
+            <button onclick="clearResults()" style="background: #6c757d; margin-left: 10px;">清空结果</button>
+        </div>
+
+        <div class="result-section">
+            <h2>执行结果</h2>
+            <div id="result">等待启动...</div>
+        </div>
+
+        <div class="logs-section">
+            <h2>工作流日志</h2>
+            <button onclick="refreshLogs()" style="margin-bottom: 10px;">刷新日志</button>
+            <div id="logs">暂无日志</div>
+        </div>
+    </div>
+
+    <script>
+        let currentBatchNumber = '';
+        let currentWorkflowInstanceId = '';
+        let needsApproval = false;
+
+        async function startOutbound() {
+            const batchNumber = document.getElementById('batchNumber').value.trim();
+            const operator = document.getElementById('operator').value.trim();
+
+            if (!batchNumber) {
+                alert('请输入批次号');
+                return;
+            }
+
+            currentBatchNumber = batchNumber;
+
+            try {
+                document.getElementById('result').innerHTML = '<p>正在启动工作流...</p>';
+
+                const response = await fetch('/workflows/material/outbound/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        batchNumber: batchNumber,
+                        operator: operator || 'System'
+                    })
+                });
+
+                const workflowInstanceId = response.headers.get('x-elsa-workflow-instance-id');
+                const result = await response.json();
+
+                if (response.ok) {
+                    // 适配两种响应格式：{success: true, data: {...}} 或 {data: {...}, code: 200}
+                    const data = result.data || result;
+                    const actualWorkflowId = data.workflowInstanceId || workflowInstanceId || '未返回';
+                    currentWorkflowInstanceId = actualWorkflowId;
+                    
+                    // 检测是否需要审批（多种方式）
+                    needsApproval = data.requiresApproval === true ||
+                                   (data.message && data.message.includes('需要审批')) ||
+                                   (result.message && result.message.includes('需要审批'));
+                    
+                    console.log('响应数据:', result);
+                    console.log('需要审批:', needsApproval);
+                    
+                    let resultHtml = `
+                        <div class="success">
+                            <h3>✅ 工作流启动成功</h3>
+                            <p><strong>批次号：</strong>${batchNumber}</p>
+                            <p><strong>工作流实例 ID：</strong>${actualWorkflowId}</p>
+                            <p><strong>响应消息：</strong>${data.message || result.message || '启动成功'}</p>
+                            <pre style="background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+
+                    if (needsApproval) {
+                        resultHtml += `
+                            <div class="approval-section">
+                                <h3>⚠️ 需要审批</h3>
+                                <p>库存不足，需要审批才能继续执行出库流程。</p>
+                                <div class="approval-buttons">
+                                    <button class="btn-approve" onclick="approveOutbound()">✅ 批准出库</button>
+                                    <button class="btn-reject" onclick="rejectOutbound()">❌ 拒绝出库</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('result').innerHTML = resultHtml;
+
+                    // 自动查询日志，并检查是否需要审批
+                    setTimeout(() => {
+                        refreshLogs();
+                        checkApprovalStatus();
+                    }, 1000);
+                } else {
+                    throw new Error(result.message || '启动失败');
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="error">
+                        <h3>❌ 启动失败</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function refreshLogs() {
+            if (!currentBatchNumber) {
+                const batchNumber = document.getElementById('batchNumber').value.trim();
+                if (batchNumber) {
+                    currentBatchNumber = batchNumber;
+                } else {
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`/api/WorkflowLog/batch/${currentBatchNumber}`);
+                
+                if (!response.ok) {
+                    document.getElementById('logs').innerHTML = `<p style="color: orange;">⚠️ 日志接口返回 ${response.status}，可能日志功能未启用或批次号不存在</p>`;
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                // 适配两种响应格式
+                const logs = result.data || result;
+                
+                if (Array.isArray(logs) && logs.length > 0) {
+                    const logsHtml = logs
+                        .sort((a, b) => a.stepOrder - b.stepOrder)
+                        .map(log => {
+                            let approvalBadge = '';
+                            if (log.requiresApproval) {
+                                approvalBadge = '<span style="background: #ff9800; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-left: 5px;">需要审批</span>';
+                            }
+                            return `
+                                <div class="log-entry ${log.executionStatus.toLowerCase()}">
+                                    <span class="step">${log.stepOrder}. ${log.stepName}${approvalBadge}</span>
+                                    <span class="status ${log.executionStatus.toLowerCase()}">${log.executionStatus}</span>
+                                    <p>${log.statusMessage}</p>
+                                    ${log.errorMessage ? `<p style="color: red;">错误: ${log.errorMessage}</p>` : ''}
+                                    <small>执行时间: ${new Date(log.createdTime).toLocaleString('zh-CN')}</small>
+                                </div>
+                            `;
+                        }).join('');
+
+                    document.getElementById('logs').innerHTML = logsHtml;
+                    
+                    // 检查日志中是否有需要审批的节点
+                    const hasApprovalLog = checkApprovalFromLogs(logs);
+                    console.log('日志中检测到需要审批:', hasApprovalLog);
+                } else {
+                    document.getElementById('logs').innerHTML = '<p>暂无日志记录</p>';
+                }
+            } catch (error) {
+                console.error('查询日志失败:', error);
+                document.getElementById('logs').innerHTML = `<p style="color: red;">查询日志失败: ${error.message}</p>`;
+            }
+        }
+
+        async function approveOutbound() {
+            if (!currentWorkflowInstanceId) {
+                alert('未找到工作流实例 ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/workflows/material/outbound/approve/${currentWorkflowInstanceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        decision: 'approved'
+                    })
+                });
+
+                let result = null;
+                const text = await response.text();
+                if (text) {
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON解析失败:', text);
+                    }
+                }
+
+                if (response.ok) {
+                    alert('✅ 审批通过！继续执行出库流程');
+                    needsApproval = false;
+                    setTimeout(() => refreshLogs(), 1000);
+                } else {
+                    alert('审批失败: ' + (result?.message || response.statusText || '未知错误'));
+                }
+            } catch (error) {
+                alert('审批请求失败: ' + error.message);
+            }
+        }
+
+        async function rejectOutbound() {
+            if (!currentWorkflowInstanceId) {
+                alert('未找到工作流实例 ID');
+                return;
+            }
+
+            if (!confirm('确定要拒绝此出库申请吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/workflows/material/outbound/approve/${currentWorkflowInstanceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        decision: 'rejected'
+                    })
+                });
+
+                let result = null;
+                const text = await response.text();
+                if (text) {
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON解析失败:', text);
+                    }
+                }
+
+                if (response.ok) {
+                    alert('❌ 审批已拒绝，流程终止');
+                    needsApproval = false;
+                    setTimeout(() => refreshLogs(), 1000);
+                } else {
+                    alert('拒绝失败: ' + (result?.message || response.statusText || '未知错误'));
+                }
+            } catch (error) {
+                alert('拒绝请求失败: ' + error.message);
+            }
+        }
+
+        function checkApprovalFromLogs(logs) {
+            // 从日志中检测是否需要审批
+            const pendingApproval = logs.some(log => {
+                console.log('检查日志:', log.stepName, 'requiresApproval:', log.requiresApproval, 'status:', log.executionStatus);
+                return log.requiresApproval === true ||
+                       (log.executionStatus === 'Pending' && log.errorMessage === '库存不足');
+            });
+            
+            console.log('检测结果 pendingApproval:', pendingApproval, 'needsApproval:', needsApproval);
+            
+            if (pendingApproval) {
+                needsApproval = true;
+                showApprovalButtons();
+            }
+            
+            return pendingApproval;
+        }
+
+        function checkApprovalStatus() {
+            // 定期检查是否需要显示审批按钮
+            if (needsApproval && currentWorkflowInstanceId) {
+                showApprovalButtons();
+            }
+        }
+
+        function showApprovalButtons() {
+            const resultDiv = document.getElementById('result');
+            if (resultDiv && !resultDiv.innerHTML.includes('approval-section')) {
+                const approvalHtml = `
+                    <div class="approval-section">
+                        <h3>⚠️ 需要审批</h3>
+                        <p>库存不足，需要审批才能继续执行出库流程。</p>
+                        <div class="approval-buttons">
+                            <button class="btn-approve" onclick="approveOutbound()">✅ 批准出库</button>
+                            <button class="btn-reject" onclick="rejectOutbound()">❌ 拒绝出库</button>
+                        </div>
+                    </div>
+                `;
+                resultDiv.innerHTML += approvalHtml;
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = '等待启动...';
+            document.getElementById('logs').innerHTML = '暂无日志';
+            currentBatchNumber = '';
+            currentWorkflowInstanceId = '';
+            needsApproval = false;
+        }
+
+        // 页面加载时尝试加载日志
+        window.onload = function() {
+            const batchNumber = document.getElementById('batchNumber').value.trim();
+            if (batchNumber) {
+                currentBatchNumber = batchNumber;
+                refreshLogs();
+            }
+        };
+    </script>
+</body>
+</html>

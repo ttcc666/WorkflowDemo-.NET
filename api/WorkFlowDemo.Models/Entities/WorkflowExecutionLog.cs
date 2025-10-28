@@ -46,6 +46,9 @@ namespace WorkFlowDemo.Models.Entities
         [SugarColumn(IsNullable = true, Length = 100, ColumnDescription = "操作人")]
         public string? Operator { get; set; }
 
+        [SugarColumn(IsNullable = false, ColumnDescription = "是否需要审批")]
+        public bool RequiresApproval { get; set; } = false;
+
         [SugarColumn(IsNullable = true, ColumnDescription = "执行耗时(毫秒)")]
         public long? ExecutionDuration { get; set; }
 

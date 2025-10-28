@@ -12,8 +12,8 @@ namespace WorkFlowDemo.Api.Extensions
             services.AddElsa(elsa =>
             {
                 // 注册工作流 - 使用完整命名空间
-                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow.MaterialOutWorkflow>();
                 elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.ApprovalWorkflow.SimpleApprovalWorkflow>();
+                elsa.AddWorkflow<WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow.MaterialOutboundWorkflow>();
                 // 配置HTTP
                 elsa.UseHttp(http => http.ConfigureHttpOptions = options =>
                 {

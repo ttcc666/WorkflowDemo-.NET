@@ -35,6 +35,9 @@ namespace WorkFlowDemo.BLL.Activities.Common
         [Input(Description = "错误信息")]
         public Input<string> ErrorMessage { get; set; } = default!;
 
+        [Input(Description = "是否需要审批")]
+        public Input<bool> RequiresApproval { get; set; } = default!;
+
         protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
         {
             var logger = context.GetRequiredService<ILogger<LogWorkflowStatusActivity>>();
@@ -68,6 +71,7 @@ namespace WorkFlowDemo.BLL.Activities.Common
                 ErrorMessage = ErrorMessage.GetOrDefault(context),
                 BatchNumber = BatchNumber.GetOrDefault(context),
                 Operator = Operator.GetOrDefault(context),
+                RequiresApproval = RequiresApproval.GetOrDefault(context),
                 CreatedTime = DateTime.Now
             };
 

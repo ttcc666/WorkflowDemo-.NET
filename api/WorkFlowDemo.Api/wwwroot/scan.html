@@ -273,6 +273,8 @@
                 }
             }
 
+            let currentWorkflowInstanceId = '';
+
             async function completeScan() {
                 if (scanCount === 0) {
                     showMessage("请至少扫描一条记录", "error");
@@ -280,31 +282,92 @@
                 }
 
                 try {
-                    const response = await fetch(
-                        `/Demo/StartMaterialOutBoundWorkflow?materialOutBatchNo=${currentBatchNumber}`,
-                        {
-                            method: "GET"
-                        },
-                    );
+                    const response = await fetch('/workflows/material/outbound/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            batchNumber: currentBatchNumber,
+                            operator: '扫描系统'
+                        })
+                    });
 
                     const result = await response.json();
+                    const data = result.data || result;
+                    currentWorkflowInstanceId = data.workflowInstanceId || '';
 
-                    if (result.code === 200) {
-                        showMessage(
-                            `扫描完成！共扫描 ${scanCount} 条记录`,
-                            "success",
-                        );
-                        setTimeout(() => {
-                            resetScan();
-                        }, 2000);
+                    if (response.ok) {
+                        // 检查是否需要审批
+                        if (data.requiresApproval) {
+                            showApprovalDialog();
+                        } else {
+                            showMessage(`扫描完成！共扫描 ${scanCount} 条记录`, "success");
+                            setTimeout(() => resetScan(), 2000);
+                        }
                     } else {
-                        showMessage(
-                            "完成扫描失败：" + (result.message || "未知错误"),
-                            "error",
-                        );
+                        showMessage("完成扫描失败：" + (result.message || "未知错误"), "error");
                     }
                 } catch (error) {
                     showMessage("完成扫描失败：" + error.message, "error");
+                }
+            }
+
+            function showApprovalDialog() {
+                const approvalHtml = `
+                    <div class="alert alert-warning mt-3" id="approvalAlert">
+                        <h5><i class="bi bi-exclamation-triangle me-2"></i>需要审批</h5>
+                        <p>库存不足，需要审批才能继续执行出库流程。</p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success" onclick="approveOutbound()">
+                                <i class="bi bi-check-circle me-2"></i>批准出库
+                            </button>
+                            <button class="btn btn-danger" onclick="rejectOutbound()">
+                                <i class="bi bi-x-circle me-2"></i>拒绝出库
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('scanSection').insertAdjacentHTML('beforeend', approvalHtml);
+            }
+
+            async function approveOutbound() {
+                try {
+                    const response = await fetch(`/workflows/material/outbound/approve/${currentWorkflowInstanceId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ decision: 'approved' })
+                    });
+
+                    if (response.ok) {
+                        showMessage('审批通过！出库流程继续执行', 'success');
+                        document.getElementById('approvalAlert')?.remove();
+                        setTimeout(() => resetScan(), 2000);
+                    } else {
+                        showMessage('审批失败', 'error');
+                    }
+                } catch (error) {
+                    showMessage('审批请求失败：' + error.message, 'error');
+                }
+            }
+
+            async function rejectOutbound() {
+                if (!confirm('确定要拒绝此出库申请吗？')) return;
+
+                try {
+                    const response = await fetch(`/workflows/material/outbound/approve/${currentWorkflowInstanceId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ decision: 'rejected' })
+                    });
+
+                    if (response.ok) {
+                        showMessage('审批已拒绝，流程终止', 'error');
+                        document.getElementById('approvalAlert')?.remove();
+                        setTimeout(() => resetScan(), 2000);
+                    } else {
+                        showMessage('拒绝失败', 'error');
+                    }
+                } catch (error) {
+                    showMessage('拒绝请求失败：' + error.message, 'error');
                 }
             }
 
