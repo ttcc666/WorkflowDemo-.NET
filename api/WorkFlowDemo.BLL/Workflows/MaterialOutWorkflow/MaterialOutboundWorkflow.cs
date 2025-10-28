@@ -319,8 +319,13 @@ namespace WorkFlowDemo.BLL.Workflows.MaterialOutWorkflow
                                     },
                                     Else = new Sequence
                                     {
+
                                         Activities =
                                         {
+                                            new UpdateLogApprovalStatusActivity
+                                            {
+                                                BatchNumber = new(batchNoVar)
+                                            },
                                             new LogWorkflowStatusActivity
                                             {
                                                 StepName = new("审批拒绝"),
