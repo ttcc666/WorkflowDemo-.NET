@@ -37,7 +37,7 @@ namespace WorkFlowDemo.Models.Entities
         [SugarColumn(IsNullable = false, Length = 50, ColumnDescription = "执行状态")]
         public string ExecutionStatus { get; set; } = "Running";
 
-        [SugarColumn(IsNullable = true, ColumnDataType = "nvarchar(max)", ColumnDescription = "错误信息")]
+        [SugarColumn(IsNullable = true, ColumnDataType = "text", ColumnDescription = "错误信息")]
         public string? ErrorMessage { get; set; }
 
         [SugarColumn(IsNullable = true, Length = 100, ColumnDescription = "业务批次号")]
@@ -52,13 +52,13 @@ namespace WorkFlowDemo.Models.Entities
         [SugarColumn(IsNullable = true, ColumnDescription = "执行耗时(毫秒)")]
         public long? ExecutionDuration { get; set; }
 
-        [SugarColumn(IsNullable = true, ColumnDataType = "nvarchar(max)", ColumnDescription = "输入数据")]
+        [SugarColumn(IsNullable = true, ColumnDataType = "text", ColumnDescription = "输入数据")]
         public string? InputData { get; set; }
 
-        [SugarColumn(IsNullable = true, ColumnDataType = "nvarchar(max)", ColumnDescription = "输出数据")]
+        [SugarColumn(IsNullable = true, ColumnDataType = "text", ColumnDescription = "输出数据")]
         public string? OutputData { get; set; }
 
-        [SugarColumn(IsNullable = true, ColumnDataType = "nvarchar(max)", ColumnDescription = "扩展数据")]
+        [SugarColumn(IsNullable = true, ColumnDataType = "text", ColumnDescription = "扩展数据")]
         public string? ExtendedData { get; set; }
 
         [SugarColumn(IsNullable = false, ColumnDescription = "创建时间")]

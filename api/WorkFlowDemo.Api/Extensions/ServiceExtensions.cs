@@ -14,7 +14,7 @@ namespace WorkFlowDemo.Api.Extensions
                 var config = new ConnectionConfig()
                 {
                     ConnectionString = connectionString,
-                    DbType = DbType.SqlServer,
+                    DbType = DbType.PostgreSQL,
                     IsAutoCloseConnection = true,
                 };
                 return new SqlSugarClient(config);
