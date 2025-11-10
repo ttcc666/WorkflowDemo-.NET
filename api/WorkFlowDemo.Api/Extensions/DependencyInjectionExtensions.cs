@@ -1,3 +1,4 @@
+using WorkFlowDemo.BLL.Resilience;
 using WorkFlowDemo.BLL.Services;
 using WorkFlowDemo.DAL.Repositories;
 
@@ -7,6 +8,8 @@ namespace WorkFlowDemo.Api.Extensions
     {
         public static IServiceCollection AddAutoRegistration(this IServiceCollection services)
         {
+            services.AddSingleton<IActivityResiliencePipelineProvider, ActivityResiliencePipelineProvider>();
+
             services.Scan(scan => scan
                 .FromAssemblyOf<IUserService>()
                 .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
